@@ -76,7 +76,7 @@ void Key_Tick(void)
 				break;
 				case 1:
 					KeyCount[i] ++;
-					if (KeyCount[i] >= 50)		//100*20=2000ms
+					if (KeyCount[i] >= 10)		//5ms*20*10=1000ms
 					{
 						S[i] = 0;
 						Key_Code[i] |= KEY_LONG;

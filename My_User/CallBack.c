@@ -97,7 +97,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)    //¶¨Ê±Æ÷2     ¶¨Ê
           MyADC.ADC_GetNewSample ();       //ADC²É¼¯Ò»´Î        
           if(++My_Timer2.usMCU_Run_Timer>=TIMER2_10mS)  //10mSÃëÖÓ 
           {
-//               KEY_ALL_Detect();   //°´¼ü¼ì²â×÷ÓÃ
+               KEY_ALL_Detect();   //°´¼ü¼ì²â×÷ÓÃ
                Function_SET.OUT_VAL_Ctrl(); //Êä³öµçÑ¹µçÁ÷µ÷Õû
                My_Timer2.usMCU_Run_Timer=0;   
           }  

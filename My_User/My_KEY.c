@@ -35,7 +35,7 @@ KEY_EC11_t  KEY_EC11 =	{KEY_EC11_Detect}; //
 *key2(K3)-向下选择
 *key3(K2)-设置输出调节
 *key4(K5)-开关机调节
-*key5(EC11按压)-步进调节
+*key5(EC11按压)-短按步进调节，长按确认
 *编码器旋转-数值加减
 */
 //2026.4.15 RylanTu:你的意思是这个东西用的定时器中断扫描而不是外部中断?
@@ -128,8 +128,9 @@ void KEY_ALL_Detect(void)
     if(Key_Check(1,KEY_CLICK)) Function_SET.UP_Switch_Adjust();
     else if(Key_Check(2,KEY_CLICK))   Function_SET.DOWN_Switch_Adjust();
     else if(Key_Check(3,KEY_CLICK))   Function_SET.SET_Switch_Adjust();
-    else if(Key_Check(4,KEY_CLICK))   Function_SET.OUT_Switch_Adjust();
-    else if(Key_Check(5,KEY_CLICK))   Function_SET.OK_Switch_Adjust();  
+	else if(Key_Check(4,KEY_CLICK))   Function_SET.OUT_Switch_Adjust();
+	else if(Key_Check(5,KEY_LONG))    Function_SET.SET_Switch_Adjust();
+	else if(Key_Check(5,KEY_CLICK))   Function_SET.OK_Switch_Adjust();
     KEY_EC11_Detect();
     Key_Clear();
 }
