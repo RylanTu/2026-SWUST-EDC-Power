@@ -1,0 +1,358 @@
+#include "main.h"
+#include "AT24CXX.h"
+
+
+#define AT24CXX_TIMEOUT 200
+#define AT24CXX_MEMADD_SIZE I2C_MEMADD_SIZE_8BIT
+
+
+static void I2C_Soft_Init(void);
+static void I2C_Soft_Start(void);
+static void I2C_Soft_Stop(void);
+static uint8_t I2C_Soft_WaitAck(void);
+static void I2C_Soft_Ack(void);
+static void I2C_Soft_NAck(void);
+static void I2C_Soft_SendByte(uint8_t byte);
+static uint8_t I2C_Soft_ReadByte(uint8_t ack);
+
+
+static uint8_t AT24CXX_IsDeviceReady(void);  //
+static uint8_t AT24CXX_WriteOneByte(uint16_t memAddress,uint8_t byteData) ;
+static uint8_t AT24CXX_ReadOneByte(uint16_t memAddress,uint8_t *byteData) ;
+static uint8_t AT24CXX_ReadBytes(uint16_t memAddress,uint8_t *pBuffer,uint16_t BufferLen);
+static uint8_t AT24CXX_WriteInOnePage(uint16_t memAddress,uint8_t *pBuffer,uint16_t BufferLen);
+static void  Write_SET_VAL(uint16_t Set_cv,uint16_t Set_cc);  //
+static void  Read_SET_VAL(void);  //?
+
+
+static void I2C_Soft_Delay(void)
+{
+    uint8_t i = 15; // 
+    while(i--);
+}
+
+// 
+static void I2C_Soft_Init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    
+    // ???GPIOB???
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    
+    // ????SCL??SDA???????
+    GPIO_InitStruct.Pin = IIC_SCL_Pin | IC_SDA_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(IIC_SCL_GPIO_Port, &GPIO_InitStruct);
+    
+    // ??????????
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+}
+
+// ????I2C??????
+static void I2C_Soft_Start(void)
+{
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+}
+
+// ????I2C?????
+static void I2C_Soft_Stop(void)
+{
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+}
+
+// ?????????
+static uint8_t I2C_Soft_WaitAck(void)
+{
+    uint8_t retry = 0;
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    
+    while(HAL_GPIO_ReadPin(IC_SDA_GPIO_Port, IC_SDA_Pin))
+    {
+        retry++;
+        if(retry > 250)
+        {
+            I2C_Soft_Stop();
+            return 1;
+        }
+    }
+    
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+    return 0;
+}
+
+// ??????????
+static void I2C_Soft_Ack(void)
+{
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+}
+
+// ???????????
+static void I2C_Soft_NAck(void)
+{
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+}
+
+// ??????????
+static void I2C_Soft_SendByte(uint8_t byte)
+{
+    uint8_t i = 8;
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    I2C_Soft_Delay();
+    
+    while(i--)
+    {
+        if(byte & 0x80)
+            HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+        else
+            HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+        
+        byte <<= 1;
+        I2C_Soft_Delay();
+        HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+        I2C_Soft_Delay();
+        HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+        I2C_Soft_Delay();
+    }
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+}
+
+// ?????????
+static uint8_t I2C_Soft_ReadByte(uint8_t ack)
+{
+    uint8_t i = 8;
+    uint8_t byte = 0;
+    
+    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    I2C_Soft_Delay();
+    
+    while(i--)
+    {
+        byte <<= 1;
+        HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+        I2C_Soft_Delay();
+        HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
+        I2C_Soft_Delay();
+        
+        if(HAL_GPIO_ReadPin(IC_SDA_GPIO_Port, IC_SDA_Pin))
+            byte |= 0x01;
+    }
+    
+    HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
+    
+    if(ack)
+        I2C_Soft_Ack();
+    else
+        I2C_Soft_NAck();
+        
+    return byte;
+}
+
+AT24CXX_t AT24CXX =
+{  
+    AT24CXX_IsDeviceReady,
+    AT24CXX_WriteOneByte,
+    AT24CXX_ReadOneByte,
+    AT24CXX_ReadBytes,
+    AT24CXX_WriteInOnePage,
+    Write_SET_VAL,         //��???څ??? ????
+    Read_SET_VAL          //????څ??? ????
+};
+
+static uint8_t AT24CXX_IsDeviceReady(void)
+{
+    I2C_Soft_Init();
+    
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_Stop();
+    return HAL_OK;
+}
+
+static uint8_t AT24CXX_WriteOneByte(uint16_t memAddress,uint8_t byteData)
+{
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_SendByte(memAddress);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_SendByte(byteData);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_Stop();
+    HAL_Delay(10); // ��?????
+    return HAL_OK;
+}
+
+static uint8_t AT24CXX_ReadOneByte(uint16_t memAddress,uint8_t *byteData)
+{
+    // ��????
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_SendByte(memAddress);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    // ?????????
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS | 0x01); // ?????
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    *byteData = I2C_Soft_ReadByte(0); // ????????????????ACK
+    I2C_Soft_Stop();
+    
+    return HAL_OK;
+}
+
+static uint8_t AT24CXX_ReadBytes(uint16_t memAddress,uint8_t *pBuffer,uint16_t BufferLen)
+{
+    if(BufferLen > MEM_SIZE_24CXX)
+    {
+        return HAL_ERROR;
+    }
+    
+    // ��????
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_SendByte(memAddress);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    // ?????????
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS | 0x01); // ?????
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    // ???????
+    while(BufferLen--)
+    {
+        if(BufferLen == 0)
+            *pBuffer = I2C_Soft_ReadByte(0); // ??????????????ACK
+        else
+            *pBuffer = I2C_Soft_ReadByte(1); // ??????????ACK
+        pBuffer++;
+    }
+    
+    I2C_Soft_Stop();
+    return HAL_OK;
+}
+
+static uint8_t AT24CXX_WriteInOnePage(uint16_t memAddress,uint8_t *pBuffer,uint16_t BufferLen)
+{
+    if(BufferLen > PAGE_SIZE_24CXX)
+    {
+        return HAL_ERROR;
+    }
+    
+    I2C_Soft_Start();
+    I2C_Soft_SendByte(AT24CXX_ADDRESS);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    I2C_Soft_SendByte(memAddress);
+    if(I2C_Soft_WaitAck())
+        return HAL_ERROR;
+    
+    while(BufferLen--)
+    {
+        I2C_Soft_SendByte(*pBuffer++);
+        if(I2C_Soft_WaitAck())
+            return HAL_ERROR;
+    }
+    
+    I2C_Soft_Stop();
+    HAL_Delay(10); // ��?????
+    return HAL_OK;
+}
+
+static void Write_SET_VAL(uint16_t Set_cv,uint16_t Set_cc)
+{
+    uint8_t Set_cv_Buffer[2]={0};
+    uint8_t Set_cc_Buffer[2]={0};
+    Set_cv_Buffer[0] = (Set_cv & 0xFF00) >> 8;
+    Set_cv_Buffer[1] = (Set_cv & 0x00FF);
+    if(AT24CXX.AT24CXX_WriteInOnePage(0x03,Set_cv_Buffer,2)==HAL_OK)
+    {
+        printf("WriteBytes Set_cv_Buffer0:0x%x!!!\r\n\r\n",Set_cv_Buffer[0]);
+        printf("WriteBytes Set_cv_Buffer1:0x%x!!!\r\n\r\n",Set_cv_Buffer[1]);        
+    }
+    Set_cc_Buffer[0] = (Set_cc & 0xFF00) >> 8;
+    Set_cc_Buffer[1] = (Set_cc & 0x00FF);
+    if(AT24CXX.AT24CXX_WriteInOnePage(0x05,Set_cc_Buffer,2)==HAL_OK)
+    {
+        printf("WriteBytes Set_cc_Buffer0:0x%x!!!\r\n\r\n",Set_cc_Buffer[0]);
+        printf("WriteBytes Set_cc_Buffer1:0x%x!!!\r\n\r\n",Set_cc_Buffer[1]);        
+    }
+}
+
+static void Read_SET_VAL(void)
+{
+    uint8_t Set_cv_Buffer[2]={0};
+    uint8_t Set_cc_Buffer[2]={0};
+    uint16_t Read_Set_cv,Read_Set_cc;
+    if(AT24CXX.AT24CXX_ReadBytes(0x03,Set_cv_Buffer,2)==HAL_OK)
+    {
+        printf("ReadBytes Set_cv_Buffer0:0x%x!!!\r\n\r\n",Set_cv_Buffer[0]); 
+        printf("ReadBytes Set_cv_Buffer1:0x%x!!!\r\n\r\n",Set_cv_Buffer[1]);    
+    }
+    Read_Set_cv=((Set_cv_Buffer[0]<<8)&0xFF00)|Set_cv_Buffer[1];
+    printf("ReadBytes Set_cv_Buffer3:0x%x!!!\r\n\r\n",Read_Set_cv);
+    Function_SET.Set_VOUT=Read_Set_cv;          
+    if(AT24CXX.AT24CXX_ReadBytes(0x05,Set_cc_Buffer,2)==HAL_OK)
+    {
+        printf("ReadBytes Set_cc_Buffer0:0x%x!!!\r\n\r\n",Set_cc_Buffer[0]); 
+        printf("ReadBytes Set_cc_Buffer1:0x%x!!!\r\n\r\n",Set_cc_Buffer[1]);    
+    }
+    Read_Set_cc=((Set_cc_Buffer[0]<<8)&0xFF00)|Set_cc_Buffer[1];
+    printf("ReadBytes Set_cc_Buffer3:0x%x!!!\r\n\r\n",Read_Set_cc);
+    Function_SET.Set_IOUT=Read_Set_cc;
+}

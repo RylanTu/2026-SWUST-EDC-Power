@@ -1,0 +1,95 @@
+/* Includes ------------------------------------------------------------------*/
+#include "My_PWM.h"
+
+/* Private define-------------------------------------------------------------*/
+
+/* Private variables----------------------------------------------------------*/
+
+/* Private function prototypes------------------------------------------------*/
+static void PWM_Init(void);
+static void PWM_Stop(void);
+static void PWM_Start(void);
+static void PWM_Updata(uint16_t Duty_CV,uint16_t Duty_CC);
+
+//初始为0
+PWMSet_Type  PWMSET =
+ {
+	0,					
+	0,					
+	0,					
+	0,					
+	0,					
+	0.0f,				
+	0.0f,				  
+	PWM_Init,			
+	PWM_Start,			
+	PWM_Stop,			
+	PWM_Updata			 
+ };
+
+static void PWM_Init(void)
+{
+ 	//HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1); //  TIM1???PWM ???
+ 	//HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);  //????????????PWM?????????
+ 	//HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_4);
+    
+ 	PWMSET.PWM_Stop();    //停止PWM输出
+ 	PWMSET.period = PWM_PERIOD_VAL;       //周期  719
+ 	PWMSET.halfPeriod = PWMSET.period >> 1;   //半周期  359
+    
+    //设置最大限制值(周期的95%)和最小限制值(周期的1%)
+ 	PWMSET.limitMax = 0.95f * PWMSET.period;  //683     
+ 	PWMSET.limitMin = 0.01f * PWMSET.period;  //7
+    
+ 	PWMSET.Status = Stop_State;   //将初始状态设置为停止状态
+}
+static void PWM_Start(void)
+{
+
+	PWMSET.Status = Start_State;    //??????
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_4);
+	//__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,CV_Duty);  //CV
+	//__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_4,CC_Duty);  //CC
+	//printf("CV_Duty:%d\r\n\r\n",CV_Duty); 
+	//printf("CC_Duty:%d\r\n\r\n",CC_Duty); 
+}
+
+static void PWM_Stop(void)
+{
+	PWMSET.Status = Stop_State;   //?????
+	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_1);
+	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_4);
+	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,0);
+	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_4,0);
+}
+
+
+//CC_Duty=(float)((((Iout_val*0.025)/0.75+(Iout_val*0.0908*3))/3.31)*1440);
+//CC_Duty=(float)((((Iout_val*0.0254)/0.75+((Iout_val*0.0254)/0.75/4*30))/3.3)*1440); //???????跢????仯
+static void PWM_Updata( uint16_t Duty_CV , uint16_t Duty_CC)
+{
+	int16_t CV_duty=0,CC_duty=0;
+	
+	if(PWMSET.Status == Start_State)  //?????????
+	{
+		if(Duty_CV<0)
+		{
+			CV_duty = 0;
+		}
+		else
+		{
+			CV_duty = Duty_CV;
+		}
+		if(Duty_CC<0)
+		{
+			CC_duty = 0;
+		}
+		else
+		{
+			CC_duty = Duty_CC;
+		}
+		__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,CV_duty);
+		__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_4,CC_duty);
+	}	
+}
