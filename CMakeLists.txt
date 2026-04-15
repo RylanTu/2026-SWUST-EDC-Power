@@ -43,13 +43,20 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add sources to executable
+# Keep a minimal user source list to provide IntelliSense context for TFT module
+set(MY_USER_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/TFT_240.c
+)
+
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    ${MY_USER_SOURCES}
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User
 )
 
 # Add project symbols (macros)

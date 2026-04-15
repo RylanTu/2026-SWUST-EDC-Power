@@ -3,16 +3,18 @@
 
 #include "MyApplication.h"
 
+//2026.4.15 RylanTu:如果花屏考虑一下CPOL和CPHA的配置，现在是默认，以及prescaler也要注意一下
+
 //显示方向选择，可选（0 1 2 3）四个方向 设置横屏或者竖屏显示 
 //#define USE_HORIZONTAL                  0  // 竖屏，逆时针旋转0度，原点在屏幕左上角  X*Y=135*240
 //#define USE_HORIZONTAL                  1  // 竖屏，逆时针旋转180度，原点在屏幕右下角  X*Y=135*240
-//#define USE_HORIZONTAL                  2  // 横屏，逆时针旋转90度，原点在屏幕右上角  X*Y=240*135
-#define USE_HORIZONTAL                  3  // 横屏，顺时针旋转90度，原点在屏幕左下角  X*Y=240*135
+#define USE_HORIZONTAL                  2  // 横屏，逆时针旋转90度，原点在屏幕右上角  X*Y=240*135
+//#define USE_HORIZONTAL                  3  // 横屏，顺时针旋转90度，原点在屏幕左下角  X*Y=240*135
+//2026.4.15 RylanTu:方向这个还不确定
 
-
-
-#define LCD_W 240   //X轴长度
-#define LCD_H 240   //Y轴长度
+//2026.4.15 RylanTu:显示屏分辨率是128*160
+#define LCD_W 160   //X轴长度
+#define LCD_H 128   //Y轴长度
 
 
 
@@ -27,8 +29,8 @@
 #define TFT_CS_Set  HAL_GPIO_WritePin(TFT_CS_GPIO_Port,TFT_CS_Pin,SET)  //
 
 
-#define TFT_BLK_OFF HAL_GPIO_WritePin(TFT_BLK_GPIO_Port,TFT_BLK_Pin,GPIO_PIN_SET) 
-#define TFT_BLK_ON  HAL_GPIO_WritePin(TFT_BLK_GPIO_Port,TFT_BLK_Pin,GPIO_PIN_RESET) 
+#define TFT_BLK_OFF HAL_GPIO_WritePin(TFT_BLK_GPIO_Port,TFT_BLK_Pin,GPIO_PIN_SET)  //
+#define TFT_BLK_ON  HAL_GPIO_WritePin(TFT_BLK_GPIO_Port,TFT_BLK_Pin,GPIO_PIN_RESET)  //
 
 
 

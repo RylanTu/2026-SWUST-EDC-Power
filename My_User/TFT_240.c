@@ -1,6 +1,7 @@
 #include "TFT_240.h"
 #include "Font_ASCII.h"
 #include "Font_CHN.h"
+#include <string.h>//2026.4.15 RylanTu:怎么原来没发现这个编译错误???
 /* Private define-------------------------------------------------------------*/
 
 /* Private variables----------------------------------------------------------*/

@@ -6,7 +6,7 @@
 #include "usart.h"
 #include "adc.h"
 #include "dma.h"
-//#include "spi.h"
+#include "spi.h"
 #include "tim.h"
 //#include "i2c.h"
 
