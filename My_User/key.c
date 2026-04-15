@@ -6,23 +6,23 @@ uint8_t Key_ReadPin(uint8_t n)
 {  
 	if (n == 1)
 	{
-		return HAL_GPIO_ReadPin(KEY1_GPIO_Port, KEY1_Pin);
+		return HAL_GPIO_ReadPin(K4_GPIO_Port, K4_Pin);
 	}
 	if (n == 2)
 	{
-		return HAL_GPIO_ReadPin(KEY2_GPIO_Port, KEY2_Pin);
+		return HAL_GPIO_ReadPin(K3_GPIO_Port, K3_Pin);
 	}
 	if (n == 3)
 	{
-		return HAL_GPIO_ReadPin(KEY3_GPIO_Port, KEY3_Pin);
+		return HAL_GPIO_ReadPin(K2_GPIO_Port, K2_Pin);
 	}
 	if (n == 4)
 	{
-		return HAL_GPIO_ReadPin(KEY4_GPIO_Port, KEY4_Pin);
+		return HAL_GPIO_ReadPin(K5_GPIO_Port, K5_Pin);
 	}
     if (n == 5)
 	{
-		return HAL_GPIO_ReadPin(KEY5_GPIO_Port, KEY5_Pin);
+		return HAL_GPIO_ReadPin(EC11_GPIO_Port, EC11_Pin);
 	}
 	return 1;
 }
