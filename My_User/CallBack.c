@@ -62,14 +62,14 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)    //定时器4
 {
      if(htim->Instance == htim4.Instance)
      {
-          if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==1)  //向下记数
+          if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==1)  //向下记数 = 逆时针 = Reverse_State = 减
           {	          
-			//Function_SET.Encoder_Direction_Adjust(Reverse_State); //顺时针
+			//Function_SET.Encoder_Direction_Adjust(Reverse_State); //逆时针
                Function_SET.Encoder_State=Reverse_State;
                //printf(" The Encoder_B button is pressed!\r\n\r\n");
                //__HAL_TIM_SET_COUNTER(&htim4,0);            
           }
-          else if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==0)   
+          else if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==0)   //向上记数 = 顺时针 = Forward_State = 加
           {
                //Function_SET.Encoder_Direction_Adjust(Forward_State); //顺时针
                Function_SET.Encoder_State=Forward_State;

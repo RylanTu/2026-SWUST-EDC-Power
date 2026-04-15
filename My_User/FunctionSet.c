@@ -117,7 +117,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 	{
 		if(Function_SET.SetVIState==SET_V_State)  //设置电压
 		{
-			if(Direction_Change!=Reverse_State)  //逆时针转动 减
+			if(Direction_Change==Reverse_State)  //逆时针转动 减(2026.4.15 RylanTu:why前面的判断逻辑要反着写?)
 			{
 				//电压减
 				switch(Function_SET.SetStepState)
@@ -197,7 +197,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 		}
 		else////设置电流
 		{
-			if(Direction_Change!=Reverse_State)  //逆时针转动 减
+			if(Direction_Change==Reverse_State)  //逆时针转动 减
 			{
 				// 电流减
 				switch(Function_SET.SetStepState)
