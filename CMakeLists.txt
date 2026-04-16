@@ -43,9 +43,23 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add sources to executable
-# Keep a minimal user source list to provide IntelliSense context for TFT module
 set(MY_USER_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/My_User/TFT_240.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/Display.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/FunctionSet.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/key.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/My_KEY.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/LED.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/FAN.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/AT24CXX.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/MyAdc_Apply.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/My_Init.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/My_Printf.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/My_PWM.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/My_Timer2.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/Public.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/System.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/CallBack.c
 )
 
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE

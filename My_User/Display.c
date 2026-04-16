@@ -1,58 +1,52 @@
 #include "Display.h"
 
-static void Relay_State(void);
+//static void Relay_State(void);
 
 
-static void DisplayShow_Once  (void);       //ֻ��ʾһ��
-static void DisplayShow_Device(void);       //�豸����״̬
+static void DisplayShow_Once  (void);       //只显示一次
+static void DisplayShow_Device(void);       //设备运行状态
 
 
-static void DisplayShow_Setval(void);       //��ʾ����ֵ
-static void DisplayShow_Outval(void);       //��ʾ���ֵ
-static void DisplayShow_Cursor(void);       //��ʾ���
+static void DisplayShow_Setval(void);       //显示设定值
+static void DisplayShow_Outval(void);       //显示输出值
+static void DisplayShow_Cursor(void);       //显示光标
 
 Display_Type Display=
 {
-  TRUE,       //��ʾһ�α�ʾ
-  FALSE,      //�豸����״̬
+  TRUE,       //显示一次标志
+  FALSE,      //设备运行状态
   DisplayShow_Once,
   DisplayShow_Device,
   DisplayShow_Setval,
   DisplayShow_Outval,
   DisplayShow_Cursor
 };
-
+/*
 static void Relay_State(void)
 {
 
 }
-
+*/
 static void DisplayShow_Once(void)
 {
-  for(int i=0; i<32; i++)
-  {
-    OLED_DrawCircle(63,31,i,OLED_UNFILLED);
-    HAL_Delay(50);
-    OLED_Update();
-  }
-  OLED_Clear();
-  for(int i=32; i>0; i--)
-  {
-    OLED_DrawCircle(63,31,i,OLED_UNFILLED);
-    HAL_Delay(50);
-    OLED_Update();
-  }
-  HAL_Delay(500);
-
+  //开机动画：依次填充红绿蓝后清屏
+  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_RED);
+  HAL_Delay(300);
+  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_GREEN);
+  HAL_Delay(300);
+  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_BLUE);
+  HAL_Delay(300);
+  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_BLACK);
+  HAL_Delay(200);
 }
 
 static void DisplayShow_Device(void)
 {
 
 }
+
 static void DisplayShow_Cursor(void)
 {
-
 
 }
 
@@ -60,75 +54,83 @@ static void DisplayShow_Setval(void)
 {
   if(Function_SET.PowrputState==ON_State)
   {
-    OLED_ShowString(100,0,"ON",OLED_8X16);
+    TFT_LCD.TFT_ShowString(120, 0, "ON ", Color_GREEN, Color_BLACK, ASCII_font_16, font_overlay_ON);
   }
   else
   {
-    OLED_ShowString(100,0,"OFF",OLED_8X16);
+    TFT_LCD.TFT_ShowString(120, 0, "OFF", Color_RED, Color_BLACK, ASCII_font_16, font_overlay_ON);
   }
-
 }
 
 static void DisplayShow_Outval(void)
 {
-  float I_draw=0;
-  float I_show;
-  float V_show;
-  float P_OUT;                    //�������
-
+  char buf[32];
+  float P_OUT;                    //输出功率
+  uint8_t percent;
 
   P_OUT = MyADC.Io * MyADC.Vo;
 
-  if(Function_SET.SetMenuState==Menu_OUT_State)        //�˵����ģʽ
+  if(Function_SET.SetMenuState==Menu_OUT_State)        //菜单输出模式
   {
-    OLED_Printf(0,0,OLED_8X16,"VIN:%.2f",MyADC.Vin);
-    OLED_Printf(0,16,OLED_8X16,"V_SET:%.2f",Function_SET.Set_VOUT);     //���õ�ѹ
-    OLED_Printf(0,48,OLED_8X16,"P:%.2f",P_OUT);
-    OLED_DrawRectangle(48,16,32,16,OLED_UNFILLED);
-  }
-  else               //�˵�����ģʽ
-  {
-    if(Function_SET.SetVIState==SET_V_State)   //��ѹ����
-    {
-      OLED_Printf(0,16,OLED_8X16,"V_SET:%.2f",Function_SET.Set_VOUT);     //���õ�ѹ
-      V_show = Function_SET.Set_VOUT /25 * 100;
-      I_draw = (int)(3.6*V_show-180);
+    snprintf(buf, sizeof(buf), "VIN :%.2fV ", MyADC.Vi);
+    TFT_LCD.TFT_ShowString(0, 0,  buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
 
-      OLED_Printf(90,37,OLED_6X8,"%d",(int)V_show);
-      OLED_ShowString(115,37,"%",OLED_6X8);
-      OLED_DrawArc(105,40,22,180,I_draw,OLED_UNFILLED);         //��Բ��
+    snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT);   //设定电压
+    TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
+
+    snprintf(buf, sizeof(buf), "P   :%.2fW ", P_OUT);
+    TFT_LCD.TFT_ShowString(0, 96, buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
+
+    //光标矩形框：覆盖设定值行
+    TFT_LCD.TFT_DrawRectangle(0, 32, LCD_W-1, 63, Color_YELLOW);
+  }
+  else               //菜单设置模式
+  {
+    if(Function_SET.SetVIState==SET_V_State)   //电压调节
+    {
+      snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT);   //设定电压
+      TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
+      percent = (uint8_t)(Function_SET.Set_VOUT / 25.0f * 100.0f);
     }
     else
     {
-      OLED_Printf(0,16,OLED_8X16,"I_SET:%.2f",Function_SET.Set_IOUT);     //���õ���
-      I_show = Function_SET.Set_VOUT /7.5 * 100;
-      I_draw = (int)(3.6*I_show-180);
-
-      OLED_Printf(90,37,OLED_6X8,"%d",(int)I_show);
-      OLED_ShowString(115,37,"%",OLED_6X8);
-      OLED_DrawArc(105,40,22,180,I_draw,OLED_UNFILLED);         //��Բ��
+      snprintf(buf, sizeof(buf), "ISET:%.2fA ", (float)Function_SET.Set_IOUT);   //设定电流
+      TFT_LCD.TFT_ShowString(0, 32, buf, Color_CYAN,   Color_BLACK, ASCII_font_16, font_overlay_ON);
+      percent = (uint8_t)(Function_SET.Set_IOUT / 7.5f  * 100.0f);
     }
+    if(percent > 100) percent = 100;
+
+    //百分比文字
+    snprintf(buf, sizeof(buf), "%3d%%", percent);
+    TFT_LCD.TFT_ShowString(120, 64, buf, Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_ON);
+
+    //进度条背景（灰色）
+    TFT_LCD.TFT_FillColor(0, 108, LCD_W-1, 127, Color_GRAY);
+    //进度条填充（绿色）
+    if(percent > 0)
+    {
+      TFT_LCD.TFT_FillColor(0, 108, (uint16_t)((LCD_W-1) * percent / 100), 127, Color_GREEN);
+    }
+
+    //光标框：指示当前调节位
     if(Function_SET.SetStepState==SET_State_First)
     {
-      OLED_DrawRectangle(48,16,8,16,OLED_UNFILLED);      //��ʾ����
+      TFT_LCD.TFT_DrawRectangle(48, 32, 55, 63, Color_WHITE);     //显示光标（最高位）
     }
     else if(Function_SET.SetStepState==SET_State_Second)
     {
-      OLED_DrawRectangle(56,16,8,16,OLED_UNFILLED);
+      TFT_LCD.TFT_DrawRectangle(56, 32, 63, 63, Color_WHITE);
     }
     else
     {
-      OLED_DrawRectangle(64,16,8,16,OLED_UNFILLED);
+      TFT_LCD.TFT_DrawRectangle(64, 32, 71, 63, Color_WHITE);
     }
   }
-
 }
 
 void My_DisplayTask(void)
 {
-  Display.DisplayShow_Once();    //��ʾһ��
-  Display.DisplayShow_Setval();  //��ʾ����ֵ
-  Display.DisplayShow_Outval();  //��ʾ���ֵ
-
-  OLED_Update();
+  Display.DisplayShow_Once();    //显示一次
+  Display.DisplayShow_Setval();  //显示设定值
+  Display.DisplayShow_Outval();  //显示输出值
 }

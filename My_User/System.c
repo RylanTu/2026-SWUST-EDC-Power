@@ -18,7 +18,7 @@ System_t System =
 
 /*private function prototypes -----------------------------------------------*/
 //static void Disp_SHT30(void);
-static void TFT_Show(void);               //TFT显示
+//static void TFT_Show(void);               //TFT显示（待实现）
 
 /*
 * @name    Run
