@@ -30,7 +30,7 @@ FunctionSet_Type  Function_SET =    //功能设置
 	SET_State_First,		//设置步进第一位
 	Idle_State,				//编码器闲置状态
 	50 ,					//设置电压值 50*100mv 5V   
-	300 ,   				//设置电流值 300*10mA  3A
+	100 ,   				//设置电流值 100*10mA  1A
 
 	OUT_Switch_Adjust,       	//电源开/关机
 	SET_Switch_Adjust,			//输出/设置模式
