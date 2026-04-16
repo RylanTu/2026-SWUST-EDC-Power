@@ -16,42 +16,42 @@ static void I2C_Soft_SendByte(uint8_t byte);
 static uint8_t I2C_Soft_ReadByte(uint8_t ack);
 
 
-static uint8_t AT24CXX_IsDeviceReady(void);  //
+static uint8_t AT24CXX_IsDeviceReady(void);  // 检测设备是否就绪
 static uint8_t AT24CXX_WriteOneByte(uint16_t memAddress,uint8_t byteData) ;
 static uint8_t AT24CXX_ReadOneByte(uint16_t memAddress,uint8_t *byteData) ;
 static uint8_t AT24CXX_ReadBytes(uint16_t memAddress,uint8_t *pBuffer,uint16_t BufferLen);
 static uint8_t AT24CXX_WriteInOnePage(uint16_t memAddress,uint8_t *pBuffer,uint16_t BufferLen);
-static void  Write_SET_VAL(uint16_t Set_cv,uint16_t Set_cc);  //
-static void  Read_SET_VAL(void);  //?
+static void  Write_SET_VAL(uint16_t Set_cv,uint16_t Set_cc);  // 写入设定值到EEPROM
+static void  Read_SET_VAL(void);  // 从EEPROM读取设定值
 
 
 static void I2C_Soft_Delay(void)
 {
-    uint8_t i = 15; // 
+    uint8_t i = 15; // 延时循环计数
     while(i--);
 }
 
-// 
+// 初始化软件I2C的GPIO引脚
 static void I2C_Soft_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     
-    // ???GPIOB???
+    // 使能GPIOB时钟
     __HAL_RCC_GPIOB_CLK_ENABLE();
     
-    // ????SCL??SDA???????
+    // 配置SCL和SDA引脚为开漏输出模式
     GPIO_InitStruct.Pin = IIC_SCL_Pin | IC_SDA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(IIC_SCL_GPIO_Port, &GPIO_InitStruct);
     
-    // ??????????
+    // 设置引脚为高电平（空闲状态）
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
 }
 
-// ????I2C??????
+// 产生I2C起始信号
 static void I2C_Soft_Start(void)
 {
     I2C_Soft_Delay();
@@ -64,7 +64,7 @@ static void I2C_Soft_Start(void)
     I2C_Soft_Delay();
 }
 
-// ????I2C?????
+// 产生I2C停止信号
 static void I2C_Soft_Stop(void)
 {
     I2C_Soft_Delay();
@@ -75,7 +75,7 @@ static void I2C_Soft_Stop(void)
     I2C_Soft_Delay();
 }
 
-// ?????????
+// 等待从机应答信号
 static uint8_t I2C_Soft_WaitAck(void)
 {
     uint8_t retry = 0;
@@ -100,7 +100,7 @@ static uint8_t I2C_Soft_WaitAck(void)
     return 0;
 }
 
-// ??????????
+// 主机发送应答信号（ACK）
 static void I2C_Soft_Ack(void)
 {
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
@@ -113,7 +113,7 @@ static void I2C_Soft_Ack(void)
     I2C_Soft_Delay();
 }
 
-// ???????????
+// 主机发送非应答信号（NACK）
 static void I2C_Soft_NAck(void)
 {
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
@@ -126,7 +126,7 @@ static void I2C_Soft_NAck(void)
     I2C_Soft_Delay();
 }
 
-// ??????????
+// 发送一个字节数据
 static void I2C_Soft_SendByte(uint8_t byte)
 {
     uint8_t i = 8;
@@ -150,7 +150,7 @@ static void I2C_Soft_SendByte(uint8_t byte)
     HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
 }
 
-// ?????????
+// 接收一个字节数据
 static uint8_t I2C_Soft_ReadByte(uint8_t ack)
 {
     uint8_t i = 8;
@@ -188,8 +188,8 @@ AT24CXX_t AT24CXX =
     AT24CXX_ReadOneByte,
     AT24CXX_ReadBytes,
     AT24CXX_WriteInOnePage,
-    Write_SET_VAL,         //��???څ??? ????
-    Read_SET_VAL          //????څ??? ????
+    Write_SET_VAL,         // 写入设定值到EEPROM
+    Read_SET_VAL          // 从EEPROM读取设定值
 };
 
 static uint8_t AT24CXX_IsDeviceReady(void)
@@ -221,13 +221,13 @@ static uint8_t AT24CXX_WriteOneByte(uint16_t memAddress,uint8_t byteData)
         return HAL_ERROR;
     
     I2C_Soft_Stop();
-    HAL_Delay(10); // ��?????
+    HAL_Delay(10); // 等待EEPROM写入完成
     return HAL_OK;
 }
 
 static uint8_t AT24CXX_ReadOneByte(uint16_t memAddress,uint8_t *byteData)
 {
-    // ��????
+    // 发送写地址，指定读取位置
     I2C_Soft_Start();
     I2C_Soft_SendByte(AT24CXX_ADDRESS);
     if(I2C_Soft_WaitAck())
@@ -237,13 +237,13 @@ static uint8_t AT24CXX_ReadOneByte(uint16_t memAddress,uint8_t *byteData)
     if(I2C_Soft_WaitAck())
         return HAL_ERROR;
     
-    // ?????????
+    // 重新起始，切换为读操作
     I2C_Soft_Start();
-    I2C_Soft_SendByte(AT24CXX_ADDRESS | 0x01); // ?????
+    I2C_Soft_SendByte(AT24CXX_ADDRESS | 0x01); // 读操作地址
     if(I2C_Soft_WaitAck())
         return HAL_ERROR;
     
-    *byteData = I2C_Soft_ReadByte(0); // ????????????????ACK
+    *byteData = I2C_Soft_ReadByte(0); // 读取一个字节，发送NACK表示结束
     I2C_Soft_Stop();
     
     return HAL_OK;
@@ -256,7 +256,7 @@ static uint8_t AT24CXX_ReadBytes(uint16_t memAddress,uint8_t *pBuffer,uint16_t B
         return HAL_ERROR;
     }
     
-    // ��????
+    // 发送写地址，指定读取起始位置
     I2C_Soft_Start();
     I2C_Soft_SendByte(AT24CXX_ADDRESS);
     if(I2C_Soft_WaitAck())
@@ -266,19 +266,19 @@ static uint8_t AT24CXX_ReadBytes(uint16_t memAddress,uint8_t *pBuffer,uint16_t B
     if(I2C_Soft_WaitAck())
         return HAL_ERROR;
     
-    // ?????????
+    // 重新起始，切换为读操作
     I2C_Soft_Start();
-    I2C_Soft_SendByte(AT24CXX_ADDRESS | 0x01); // ?????
+    I2C_Soft_SendByte(AT24CXX_ADDRESS | 0x01); // 读操作地址
     if(I2C_Soft_WaitAck())
         return HAL_ERROR;
     
-    // ???????
+    // 循环读取多个字节
     while(BufferLen--)
     {
         if(BufferLen == 0)
-            *pBuffer = I2C_Soft_ReadByte(0); // ??????????????ACK
+            *pBuffer = I2C_Soft_ReadByte(0); // 最后一字节，发送NACK
         else
-            *pBuffer = I2C_Soft_ReadByte(1); // ??????????ACK
+            *pBuffer = I2C_Soft_ReadByte(1); // 非最后字节，发送ACK
         pBuffer++;
     }
     
@@ -310,7 +310,7 @@ static uint8_t AT24CXX_WriteInOnePage(uint16_t memAddress,uint8_t *pBuffer,uint1
     }
     
     I2C_Soft_Stop();
-    HAL_Delay(10); // ��?????
+    HAL_Delay(10); // 等待EEPROM页写入完成
     return HAL_OK;
 }
 
