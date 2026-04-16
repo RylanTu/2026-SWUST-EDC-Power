@@ -12,7 +12,7 @@ typedef enum
 
 //PWM
 #define PWM_COUNT_FRE			72000000		
-#define PWM_FREQUENCY			100000	   //开关频率
+#define PWM_FREQUENCY			50000	   //开关频率(与TIM1 ARR=1439一致)
 #define PWM_PERIOD_VAL	(PWM_COUNT_FRE / PWM_FREQUENCY - 1)
 #define PWM1_PULSE  TIM1->CCR1 
 //#define PWM2_PULSE  TIM1->CCR4 
