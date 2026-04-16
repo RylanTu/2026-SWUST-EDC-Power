@@ -3,6 +3,14 @@
 
 #include "MyApplication.h"
 
+#define SET_VOUT_MIN 0U       // 0.00V (unit: 10mV)
+#define SET_VOUT_MAX 1200U    // 12.00V (unit: 10mV)
+#define SET_IOUT_MIN 0U       // 0.000A (unit: 1mA)
+#define SET_IOUT_MAX 1000U    // 1.000A (unit: 1mA)
+
+#define SET_VOUT_DEFAULT 600U // 6.00V (unit: 10mV)
+#define SET_IOUT_DEFAULT 500U // 0.500A (unit: 1mA)
+
 //·½Ïò
 typedef enum
 {

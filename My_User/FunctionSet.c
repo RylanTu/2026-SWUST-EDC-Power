@@ -29,8 +29,8 @@ FunctionSet_Type  Function_SET =    //功能设置
 	SET_V_State,		 	//设置电压模式
 	SET_State_First,		//设置步进第一位
 	Idle_State,				//编码器闲置状态
-	500 ,					//设置电压值 500*10mV  5.00V
-	1000 ,   				//设置电流值 1000*1mA 1.000A
+	SET_VOUT_DEFAULT ,		//设置电压默认值 6.00V
+	SET_IOUT_DEFAULT ,   	//设置电流默认值 0.500A
 
 	OUT_Switch_Adjust,       	//电源开/关机
 	SET_Switch_Adjust,			//输出/设置模式
@@ -123,33 +123,33 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_VOUT>1)
+						if(Function_SET.Set_VOUT > SET_VOUT_MIN)
 					{
 						Function_SET.Set_VOUT-= 1;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 1;
+							Function_SET.Set_VOUT= SET_VOUT_MIN;
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_VOUT>10)
+						if(Function_SET.Set_VOUT>=10)
 					{
 						Function_SET.Set_VOUT-= 10;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 1;
+							Function_SET.Set_VOUT= SET_VOUT_MIN;
 					}
 					break; //   第二位 
 					case SET_State_Thirdly:
-					if(Function_SET.Set_VOUT>100)
+						if(Function_SET.Set_VOUT>=100)
 					{
 						Function_SET.Set_VOUT-= 100;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 1;
+							Function_SET.Set_VOUT= SET_VOUT_MIN;
 					}
 					break; //   第三位 
 				}		
@@ -160,33 +160,33 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_VOUT<2700)
+						if(Function_SET.Set_VOUT < SET_VOUT_MAX)
 					{
 						Function_SET.Set_VOUT+= 1;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 2700;
+							Function_SET.Set_VOUT= SET_VOUT_MAX;
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_VOUT<2691)
+						if(Function_SET.Set_VOUT <= (SET_VOUT_MAX - 10U))
 					{
 						Function_SET.Set_VOUT+= 10;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 2700;
+							Function_SET.Set_VOUT= SET_VOUT_MAX;
 					}
 					break; //   第二位 
 					case SET_State_Thirdly:
-					if(Function_SET.Set_VOUT<2601)
+						if(Function_SET.Set_VOUT <= (SET_VOUT_MAX - 100U))
 					{
 						Function_SET.Set_VOUT+= 100;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 2700;
+							Function_SET.Set_VOUT= SET_VOUT_MAX;
 					}
 					break; //   第三位 
 				}
@@ -203,33 +203,33 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_IOUT>1)
+					if(Function_SET.Set_IOUT > SET_IOUT_MIN)
 					{
 						Function_SET.Set_IOUT-= 1;    //0.001A
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 1;
+						Function_SET.Set_IOUT= SET_IOUT_MIN;
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_IOUT>10)
+					if(Function_SET.Set_IOUT>=10)
 					{
 						Function_SET.Set_IOUT-= 10;    //0.010A
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 1;
+						Function_SET.Set_IOUT= SET_IOUT_MIN;
 					}
 					break;
 					case SET_State_Thirdly:
-					if(Function_SET.Set_IOUT>100)
+					if(Function_SET.Set_IOUT>=100)
 					{
 						Function_SET.Set_IOUT-= 100;    // 0.100A
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 1;
+						Function_SET.Set_IOUT= SET_IOUT_MIN;
 					}
 					break;
 					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //设置电压小于0时等于0
@@ -241,33 +241,33 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_IOUT<7500)
+					if(Function_SET.Set_IOUT < SET_IOUT_MAX)
 					{
 						Function_SET.Set_IOUT+= 1;
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 7500;
+						Function_SET.Set_IOUT= SET_IOUT_MAX;
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_IOUT<7491)
+					if(Function_SET.Set_IOUT <= (SET_IOUT_MAX - 10U))
 					{
 						Function_SET.Set_IOUT+= 10;
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 7500;
+						Function_SET.Set_IOUT= SET_IOUT_MAX;
 					}
 					break;
 					case SET_State_Thirdly:
-					if(Function_SET.Set_IOUT<7401)
+					if(Function_SET.Set_IOUT <= (SET_IOUT_MAX - 100U))
 					{
 						Function_SET.Set_IOUT+= 100;
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 7500;
+						Function_SET.Set_IOUT= SET_IOUT_MAX;
 					}
 					break;
 					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //设置电压小于0时等于0

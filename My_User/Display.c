@@ -56,14 +56,14 @@ static void DisplayShow_Cursor(void)
 
 static float Display_GetSetVoltage(void)
 {
-  // 内部电压单位为 0.1V。
-  return (float)Function_SET.Set_VOUT / 10.0f;
+  // 内部电压单位为 10mV。
+  return (float)Function_SET.Set_VOUT / 100.0f;
 }
 
 static float Display_GetSetCurrent(void)
 {
-  // 内部电流单位为 0.01A。
-  return (float)Function_SET.Set_IOUT / 100.0f;
+  // 内部电流单位为 1mA。
+  return (float)Function_SET.Set_IOUT / 1000.0f;
 }
 
 static void DisplayShow_Setval(void)
@@ -73,7 +73,7 @@ static void DisplayShow_Setval(void)
   snprintf(buf, sizeof(buf), "VS :%.2fV", Display_GetSetVoltage());
   TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
 
-  snprintf(buf, sizeof(buf), "IS :%.2fA", Display_GetSetCurrent());
+  snprintf(buf, sizeof(buf), "IS :%.3fA", Display_GetSetCurrent());
   TFT_LCD.TFT_ShowString(0, 48, buf, Color_CYAN, Color_BLACK, ASCII_font_16, font_overlay_ON);
 }
 
@@ -93,7 +93,7 @@ static void DisplayShow_Outval(void)
   snprintf(buf, sizeof(buf), "VO :%.2fV", MyADC.Vo);
   TFT_LCD.TFT_ShowString(0, 0, buf, Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_ON);
 
-  snprintf(buf, sizeof(buf), "IO :%.2fA", MyADC.Io);
+  snprintf(buf, sizeof(buf), "IO :%.3fA", MyADC.Io);
   TFT_LCD.TFT_ShowString(0, 16, buf, Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_ON);
 
   if(Function_SET.SetMenuState==Menu_OUT_State)        //菜单输出模式
@@ -101,7 +101,7 @@ static void DisplayShow_Outval(void)
     snprintf(buf, sizeof(buf), "VIN :%.2fV ", MyADC.Vi);
     TFT_LCD.TFT_ShowString(0, 0,  buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
 
-    snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT / 100.0f);   //设定电压
+    snprintf(buf, sizeof(buf), "VSET:%.2fV ", set_voltage);   //设定电压
     TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
 
     snprintf(buf, sizeof(buf), "P   :%.2fW ", P_OUT);
@@ -114,15 +114,15 @@ static void DisplayShow_Outval(void)
   {
     if(Function_SET.SetVIState==SET_V_State)   //电压调节
     {
-      snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT / 100.0f);   //设定电压
+      snprintf(buf, sizeof(buf), "VSET:%.2fV ", set_voltage);   //设定电压
       TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
-      percent = (uint8_t)(Function_SET.Set_VOUT / 2700.0f * 100.0f);
+      percent = (uint8_t)(Function_SET.Set_VOUT / (float)SET_VOUT_MAX * 100.0f);
     }
     else
     {
-      snprintf(buf, sizeof(buf), "ISET:%.3fA ", (float)Function_SET.Set_IOUT / 1000.0f);   //设定电流
+      snprintf(buf, sizeof(buf), "ISET:%.3fA ", set_current);   //设定电流
       TFT_LCD.TFT_ShowString(0, 32, buf, Color_CYAN,   Color_BLACK, ASCII_font_16, font_overlay_ON);
-      percent = (uint8_t)(Function_SET.Set_IOUT / 7500.0f  * 100.0f);
+      percent = (uint8_t)(Function_SET.Set_IOUT / (float)SET_IOUT_MAX  * 100.0f);
     }
     if(percent > 100) percent = 100;
 

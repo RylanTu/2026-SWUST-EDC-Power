@@ -345,13 +345,9 @@ static void Read_SET_VAL(void)
         printf("ReadBytes Set_cv_Buffer1:0x%x!!!\r\n\r\n",Set_cv_Buffer[1]);    
     }
     Read_Set_cv=((Set_cv_Buffer[0]<<8)&0xFF00)|Set_cv_Buffer[1];
-    if(Read_Set_cv < 1)
+    if(Read_Set_cv > SET_VOUT_MAX)
     {
-        Read_Set_cv = 500;
-    }
-    else if(Read_Set_cv > 2700)
-    {
-        Read_Set_cv = 2700;
+        Read_Set_cv = SET_VOUT_DEFAULT;
     }
     printf("ReadBytes Set_cv_Buffer3:0x%x!!!\r\n\r\n",Read_Set_cv);
     Function_SET.Set_VOUT=Read_Set_cv;          
@@ -361,13 +357,9 @@ static void Read_SET_VAL(void)
         printf("ReadBytes Set_cc_Buffer1:0x%x!!!\r\n\r\n",Set_cc_Buffer[1]);    
     }
     Read_Set_cc=((Set_cc_Buffer[0]<<8)&0xFF00)|Set_cc_Buffer[1];
-    if(Read_Set_cc < 1)
+    if(Read_Set_cc > SET_IOUT_MAX)
     {
-        Read_Set_cc = 3000;
-    }
-    else if(Read_Set_cc > 7500)
-    {
-        Read_Set_cc = 7500;
+        Read_Set_cc = SET_IOUT_DEFAULT;
     }
     printf("ReadBytes Set_cc_Buffer3:0x%x!!!\r\n\r\n",Read_Set_cc);
     Function_SET.Set_IOUT=Read_Set_cc;
