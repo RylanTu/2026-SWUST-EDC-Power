@@ -27,6 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "MyApplication.h"
 
 /* USER CODE END Includes */
 
@@ -69,7 +70,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  uint8_t Key_num;
+  //uint8_t Key_num;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -99,6 +100,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
+  MyInit.Peripheral_Set();
 
   /* USER CODE END 2 */
 
@@ -109,6 +111,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    System.Run();
   }
   /* USER CODE END 3 */
 }

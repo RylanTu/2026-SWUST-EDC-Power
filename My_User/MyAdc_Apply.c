@@ -64,7 +64,7 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   MyADC.Nin[0]   = MyADC.ADC_ConverValue[0]; //PA6->输入温度
   MyADC.Iout[0]  = MyADC.ADC_ConverValue[1]; //PA7->输出电流
   MyADC.Vin [0]  = MyADC.ADC_ConverValue[2]; //PB0->输入电压
-  MyADC.Vout[0]  = MyADC.ADC_ConverValue[3]; //PB1->输入电压
+  MyADC.Vout[0]  = MyADC.ADC_ConverValue[3]; //PB1->输出电压
 
   SUM[0] += MyADC.Nin[0];
   SUM[1] += MyADC.Iout[0];

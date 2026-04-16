@@ -29,15 +29,8 @@ static void Relay_State(void)
 */
 static void DisplayShow_Once(void)
 {
-  //开机动画：依次填充红绿蓝后清屏
-  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_RED);
-  HAL_Delay(300);
-  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_GREEN);
-  HAL_Delay(300);
-  TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_BLUE);
-  HAL_Delay(300);
   TFT_LCD.TFT_FillColor(0, 0, LCD_W-1, LCD_H-1, Color_BLACK);
-  HAL_Delay(200);
+  Display.Show_Once_Flag = FALSE;
 }
 
 static void DisplayShow_Device(void)
@@ -130,7 +123,10 @@ static void DisplayShow_Outval(void)
 
 void My_DisplayTask(void)
 {
-  Display.DisplayShow_Once();    //显示一次
+  if(Display.Show_Once_Flag == TRUE)
+  {
+    Display.DisplayShow_Once();  //显示一次
+  }
   Display.DisplayShow_Setval();  //显示设定值
   Display.DisplayShow_Outval();  //显示输出值
 }
