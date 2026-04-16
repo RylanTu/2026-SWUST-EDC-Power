@@ -75,7 +75,7 @@ static void DisplayShow_Outval(void)
     snprintf(buf, sizeof(buf), "VIN :%.2fV ", MyADC.Vi);
     TFT_LCD.TFT_ShowString(0, 0,  buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
 
-    snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT);   //设定电压
+    snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT / 100.0f);   //设定电压
     TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
 
     snprintf(buf, sizeof(buf), "P   :%.2fW ", P_OUT);
@@ -88,15 +88,15 @@ static void DisplayShow_Outval(void)
   {
     if(Function_SET.SetVIState==SET_V_State)   //电压调节
     {
-      snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT);   //设定电压
+      snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT / 100.0f);   //设定电压
       TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
-      percent = (uint8_t)(Function_SET.Set_VOUT / 25.0f * 100.0f);
+      percent = (uint8_t)(Function_SET.Set_VOUT / 2700.0f * 100.0f);
     }
     else
     {
-      snprintf(buf, sizeof(buf), "ISET:%.2fA ", (float)Function_SET.Set_IOUT);   //设定电流
+      snprintf(buf, sizeof(buf), "ISET:%.3fA ", (float)Function_SET.Set_IOUT / 1000.0f);   //设定电流
       TFT_LCD.TFT_ShowString(0, 32, buf, Color_CYAN,   Color_BLACK, ASCII_font_16, font_overlay_ON);
-      percent = (uint8_t)(Function_SET.Set_IOUT / 7.5f  * 100.0f);
+      percent = (uint8_t)(Function_SET.Set_IOUT / 7500.0f  * 100.0f);
     }
     if(percent > 100) percent = 100;
 

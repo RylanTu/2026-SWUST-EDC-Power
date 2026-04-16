@@ -45,6 +45,9 @@ static void ADC_GetNewSample (void) //获取ADC采样值
 {
   uint16_t i=0;
   float SUM[4]= {0.0f,0.0f,0.0f,0.0f};
+  float set_current;//2026.4.16 RylanTu:修改这个可以更改切换阈值
+  float cc_enter_threshold;
+  float cc_exit_threshold;
 
   for(i=PW_ADC_SAMPLE_LEN-1; i>0; i--)//滑动（递推）平均滤波
   {
@@ -75,9 +78,9 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /34/0.025 ;//理论34
   //MyADC.Io = 2 * (3.3/4095) /34/0.025 ;//理论34
   //printf("S V:%d\r\n\r\n",SUM[1]);
-  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /(1+15/1)/0.025 ;//理论34
+  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025 ;//运放增益约15，采样电阻0.025R
   MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3/4095) *((100+5.1)/5.1);  //输入电压
-  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4095)*10;  //(100+10)/10 缩小11倍  /  (100+10)/100 放大1.1倍
+  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4095)*110;  //ADC_VOUT经0.1倍运放和11分压链路折算
 
   //MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4096) *((100+10)/10)/1.1;
 
@@ -92,13 +95,24 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   {
     MyADC.Io = 0;
   }
-  if(MyADC.Io<(float)(Function_SET.Set_IOUT-1)/100)
+
+  //在电流阈值附近加入迟滞，避免CV/CC状态来回抖动
+  set_current = (float)Function_SET.Set_IOUT / 1000.0f;
+  cc_enter_threshold = set_current * (1.0f + CC_HYS_ENTER_PCT / 100.0f);
+  cc_exit_threshold = set_current * (1.0f - CC_HYS_EXIT_PCT / 100.0f);
+  if(Function_SET.OutPutState == CC_State)
   {
-    Function_SET.OutPutState=CV_State;//恒压
+    if(MyADC.Io <= cc_exit_threshold)
+    {
+      Function_SET.OutPutState=CV_State;//恒压
+    }
   }
   else
   {
-    Function_SET.OutPutState=CC_State;//恒流
+    if(MyADC.Io >= cc_enter_threshold)
+    {
+      Function_SET.OutPutState=CC_State;//恒流
+    }
   }
 
 }
