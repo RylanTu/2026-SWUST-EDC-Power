@@ -34,12 +34,12 @@ static void PWM_Init(void)
  	//HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_4);
     
  	PWMSET.PWM_Stop();    //停止PWM输出
- 	PWMSET.period = PWM_PERIOD_VAL;       //周期  719
- 	PWMSET.halfPeriod = PWMSET.period >> 1;   //半周期  359
+	PWMSET.period = PWM_PERIOD_VAL;       //周期 1439
+	PWMSET.halfPeriod = PWMSET.period >> 1;   //半周期 719
     
     //设置最大限制值(周期的95%)和最小限制值(周期的1%)
- 	PWMSET.limitMax = 0.95f * PWMSET.period;  //683     
- 	PWMSET.limitMin = 0.01f * PWMSET.period;  //7
+	PWMSET.limitMax = 0.95f * PWMSET.period;  //1367
+	PWMSET.limitMin = 0;                      //允许占空比降到0//2026.4.16 RylanTu:不确定改到0会不会炸
     
  	PWMSET.Status = Stop_State;   //将初始状态设置为停止状态
 }
@@ -73,7 +73,7 @@ static void PWM_Updata( uint16_t Duty_CV , uint16_t Duty_CC)
 	
 	if(PWMSET.Status == Start_State)  //?????????
 	{
-		if(Duty_CV<0)
+		if((int16_t)Duty_CV<0)
 		{
 			CV_duty = 0;
 		}
@@ -81,7 +81,7 @@ static void PWM_Updata( uint16_t Duty_CV , uint16_t Duty_CC)
 		{
 			CV_duty = Duty_CV;
 		}
-		if(Duty_CC<0)
+		if((int16_t)Duty_CC<0)
 		{
 			CC_duty = 0;
 		}
@@ -89,6 +89,12 @@ static void PWM_Updata( uint16_t Duty_CV , uint16_t Duty_CC)
 		{
 			CC_duty = Duty_CC;
 		}
+
+		PWM_Limit_Max(CV_duty, PWMSET.limitMax);
+		PWM_Limit_Min(CV_duty, PWMSET.limitMin);
+		PWM_Limit_Max(CC_duty, PWMSET.limitMax);
+		PWM_Limit_Min(CC_duty, PWMSET.limitMin);
+
 		__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,CV_duty);
 		__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_4,CC_duty);
 	}	

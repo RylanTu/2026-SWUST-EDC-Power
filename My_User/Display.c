@@ -99,7 +99,10 @@ static void DisplayShow_Outval(void)
   if(Function_SET.SetMenuState==Menu_OUT_State)        //菜单输出模式
   {
     snprintf(buf, sizeof(buf), "VIN :%.2fV ", MyADC.Vi);
-    TFT_LCD.TFT_ShowString(0, 64,  buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
+    TFT_LCD.TFT_ShowString(0, 0,  buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
+
+    snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT / 100.0f);   //设定电压
+    TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
 
     snprintf(buf, sizeof(buf), "P   :%.2fW ", P_OUT);
     TFT_LCD.TFT_ShowString(0, 96, buf, Color_WHITE,  Color_BLACK, ASCII_font_16, font_overlay_ON);
@@ -111,17 +114,15 @@ static void DisplayShow_Outval(void)
   {
     if(Function_SET.SetVIState==SET_V_State)   //电压调节
     {
-      snprintf(buf, sizeof(buf), "VS :%.2fV", set_voltage);
+      snprintf(buf, sizeof(buf), "VSET:%.2fV ", (float)Function_SET.Set_VOUT / 100.0f);   //设定电压
       TFT_LCD.TFT_ShowString(0, 32, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_ON);
-      // 当前代码的电压设定上限是 27.0V，对应内部值 270。
-      percent = (uint8_t)((float)Function_SET.Set_VOUT / 270.0f * 100.0f);
+      percent = (uint8_t)(Function_SET.Set_VOUT / 2700.0f * 100.0f);
     }
     else
     {
-      snprintf(buf, sizeof(buf), "IS :%.2fA", set_current);
+      snprintf(buf, sizeof(buf), "ISET:%.3fA ", (float)Function_SET.Set_IOUT / 1000.0f);   //设定电流
       TFT_LCD.TFT_ShowString(0, 32, buf, Color_CYAN,   Color_BLACK, ASCII_font_16, font_overlay_ON);
-      // 当前代码的电流设定上限是 7.50A，对应内部值 750。
-      percent = (uint8_t)((float)Function_SET.Set_IOUT / 750.0f * 100.0f);
+      percent = (uint8_t)(Function_SET.Set_IOUT / 7500.0f  * 100.0f);
     }
     if(percent > 100) percent = 100;
 

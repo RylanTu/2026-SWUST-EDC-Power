@@ -29,8 +29,8 @@ FunctionSet_Type  Function_SET =    //功能设置
 	SET_V_State,		 	//设置电压模式
 	SET_State_First,		//设置步进第一位
 	Idle_State,				//编码器闲置状态
-	50 ,					//设置电压值 50*100mv 5V   
-	100 ,   				//设置电流值 100*10mA  1A
+	500 ,					//设置电压值 500*10mV  5.00V
+	1000 ,   				//设置电流值 1000*1mA 1.000A
 
 	OUT_Switch_Adjust,       	//电源开/关机
 	SET_Switch_Adjust,			//输出/设置模式
@@ -123,7 +123,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_VOUT>2)
+					if(Function_SET.Set_VOUT>1)
 					{
 						Function_SET.Set_VOUT-= 1;
 					}
@@ -133,7 +133,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_VOUT>11)
+					if(Function_SET.Set_VOUT>10)
 					{
 						Function_SET.Set_VOUT-= 10;
 					}
@@ -143,7 +143,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 					}
 					break; //   第二位 
 					case SET_State_Thirdly:
-					if(Function_SET.Set_VOUT>101)
+					if(Function_SET.Set_VOUT>100)
 					{
 						Function_SET.Set_VOUT-= 100;
 					}
@@ -160,33 +160,33 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_VOUT<269)
+					if(Function_SET.Set_VOUT<2700)
 					{
 						Function_SET.Set_VOUT+= 1;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 270;
+						Function_SET.Set_VOUT= 2700;
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_VOUT<260)
+					if(Function_SET.Set_VOUT<2691)
 					{
 						Function_SET.Set_VOUT+= 10;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 270;
+						Function_SET.Set_VOUT= 2700;
 					}
 					break; //   第二位 
 					case SET_State_Thirdly:
-					if(Function_SET.Set_VOUT<170)
+					if(Function_SET.Set_VOUT<2601)
 					{
 						Function_SET.Set_VOUT+= 100;
 					}
 					else
 					{
-						Function_SET.Set_VOUT= 270;
+						Function_SET.Set_VOUT= 2700;
 					}
 					break; //   第三位 
 				}
@@ -203,9 +203,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_IOUT>2)
+					if(Function_SET.Set_IOUT>1)
 					{
-						Function_SET.Set_IOUT-= 1;    //0.01
+						Function_SET.Set_IOUT-= 1;    //0.001A
 					}
 					else
 					{
@@ -213,9 +213,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_IOUT>11)
+					if(Function_SET.Set_IOUT>10)
 					{
-						Function_SET.Set_IOUT-= 10;    //0.1
+						Function_SET.Set_IOUT-= 10;    //0.010A
 					}
 					else
 					{
@@ -223,9 +223,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 					}
 					break;
 					case SET_State_Thirdly:
-					if(Function_SET.Set_IOUT>101)
+					if(Function_SET.Set_IOUT>100)
 					{
-						Function_SET.Set_IOUT-= 100;    // 1
+						Function_SET.Set_IOUT-= 100;    // 0.100A
 					}
 					else
 					{
@@ -241,33 +241,33 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_IOUT<749)
+					if(Function_SET.Set_IOUT<7500)
 					{
 						Function_SET.Set_IOUT+= 1;
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 750;
+						Function_SET.Set_IOUT= 7500;
 					}
 					break;
 					case SET_State_Second:
-					if(Function_SET.Set_IOUT<740)
+					if(Function_SET.Set_IOUT<7491)
 					{
 						Function_SET.Set_IOUT+= 10;
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 750;
+						Function_SET.Set_IOUT= 7500;
 					}
 					break;
 					case SET_State_Thirdly:
-					if(Function_SET.Set_IOUT<650)
+					if(Function_SET.Set_IOUT<7401)
 					{
 						Function_SET.Set_IOUT+= 100;
 					}
 					else
 					{
-						Function_SET.Set_IOUT= 750;
+						Function_SET.Set_IOUT= 7500;
 					}
 					break;
 					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //设置电压小于0时等于0
@@ -294,15 +294,16 @@ static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 		//printf("Vout_val:%d\r\n\r\n",Vout_val);
 		//printf("Iout_val:%d\r\n\r\n",Iout_val);
 
-        // 原100mv单位 /10-转换单位为V    /11-分压比    /3.3-参考电压   *1440-转化为PWM输出值
-		SET_Vout_val=(float)Vout_val/10/11/3.3*1440;          
+		// Set_VOUT单位10mV: /100转换为V，再匹配11分压比
+		SET_Vout_val=(float)Vout_val/100/11/3.3*1440;
 		//printf("SET_Vout_val:%f\r\n\r\n",SET_Vout_val); 
 		CV_Duty=(uint16_t)SET_Vout_val;
 		//CC_Duty=(float)((((Iout_val/100*0.0254)/0.75+((Iout_val/100*0.0254)/0.75/4*30))/3.3)*1440); //采样电阻0.025R
 		//CC_Duty=(float)(((Iout_val/100*0.025)/0.75+((Iout_val/100*0.025)/0.75/4*30))/3.3*1440); //采样电阻0.025R
 		//CC_Duty=(uint16_t)((Iout_val/100*0.025)/3*34)/3.3*1440;
 
-		SET_Iout_val=(float)Iout_val/100*0.025/3*34/3.3*1440;
+		// Set_IOUT单位1mA: /1000转换为A；采样电阻0.025R，电流环放大约15倍
+		SET_Iout_val=(float)Iout_val/1000*0.025*15/3.3*1440;
 		//printf("SET_Iout_val:%f\r\n\r\n",SET_Iout_val); 
 		CC_Duty=(uint16_t)SET_Iout_val;
 
