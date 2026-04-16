@@ -94,3 +94,42 @@
 2. 拓扑不限：可采用线性稳压（LM317、串联调整管）或开关拓扑（Buck等），鼓励使用实验室现有器件完成设计。
 
 3. 评分侧重：控制原理正确性、系统实现简洁性、运行稳定性与工程规范性。
+
+---
+
+## 六、这个项目整体是如何工作的（代码视角）
+
+### 1) 工程分层
+- **Core/**：STM32CubeMX 生成的底层初始化（时钟、GPIO、ADC、DMA、SPI、TIM、USART、中断等）。
+- **Drivers/**：STM32 HAL 与 CMSIS 官方驱动。
+- **My_User/**：项目业务逻辑（按键、编码器、采样换算、CV/CC 控制、TFT 显示、EEPROM 参数存储等）。
+
+### 2) 上电启动流程
+1. `Core/Src/main.c` 中先执行 `HAL_Init()`、`SystemClock_Config()` 和各外设 `MX_XXX_Init()`。
+2. 业务层初始化在 `My_User/My_Init.c` 的 `MyInit.Peripheral_Set()` 中定义，主要做：
+   - TFT 初始化与开机指示；
+   - ADC+DMA 启动（`MyADC.ADC_Initial_Setup()`）；
+   - 启动定时器与编码器接口；
+   - 读取 AT24CXX 中保存的电压/电流设定值；
+   - 初始化 PWM 输出模块。
+
+### 3) 周期任务与中断驱动
+- **TIM2 周期中断**（`My_User/CallBack.c -> HAL_TIM_PeriodElapsedCallback`）是主调度节拍：
+  - 调用 `Key_Tick()` 完成按键扫描与去抖；
+  - 调用 `MyADC.ADC_GetNewSample()` 做 ADC 多通道采样、滑动平均和物理量换算；
+  - 周期执行 `Function_SET.OUT_VAL_Ctrl()` 更新 CV/CC 两路 PWM 占空比。
+- **编码器输入捕获回调**（`HAL_TIM_IC_CaptureCallback`）记录正反转方向，再由按键模块消费。
+
+### 4) 控制核心（CV/CC）
+- 参数状态机定义在 `My_User/FunctionSet.c/.h`：开关机、菜单状态、设置位选择、电压/电流设定值等。
+- `OUT_VAL_Ctrl()` 会把 `Set_VOUT/Set_IOUT` 转为 PWM 比较值，调用 `PWMSET.PWM_Updata()` 下发到 TIM1 通道，实现恒压/恒流参考控制。
+- `My_User/MyAdc_Apply.c` 会基于采样电流与设定电流关系判断当前是 **CV** 还是 **CC** 状态并更新 `Function_SET.OutPutState`。
+
+### 5) 人机交互
+- **按键/编码器**：`key.c` + `My_KEY.c`，负责事件识别并驱动 `Function_SET` 状态切换。
+- **显示**：`Display.c` 中 `My_DisplayTask()` 负责 TFT 页面显示（输入电压、设定值、功率、进度条、光标等）。
+- **参数掉电保存**：开关机时通过 `AT24CXX` 读写设定值，保证重启后保留参数。
+
+### 6) 一句话总结
+这个工程采用“**中断采样 + 状态机控制 + PWM执行 + TFT反馈**”的闭环结构：  
+按键/编码器改设定值 → ADC 采样得到实时输出 → 计算并更新 PWM → 屏幕显示当前状态与测量结果。
