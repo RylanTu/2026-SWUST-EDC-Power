@@ -21,7 +21,7 @@ typedef struct
     uint8_t (*AT24CXX_ReadBytes)(uint16_t ,uint8_t* ,uint16_t );
     uint8_t (*AT24CXX_WriteInOnePage)(uint16_t ,uint8_t *,uint16_t );
     void  (*Write_SET_VAL)(uint16_t,uint16_t);  //写设置电压 电流
-    void  (*Read_SET_VAL)(void)  //读设置电压 电流
+    void  (*Read_SET_VAL)(void);  //读设置电压 电流(2026.4.16 RylanTu:为什么这个之前也没发现)
 
 
 }AT24CXX_t;

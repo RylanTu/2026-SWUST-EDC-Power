@@ -10,7 +10,7 @@
 #include "tim.h"
 //#include "i2c.h"
 
-#include "oled.h"
+////#include "oled.h"   // 已切换至TFT，不再使用OLED
 #include "key.h"
 #include "stdio.h"
 #include "stdlib.h"
