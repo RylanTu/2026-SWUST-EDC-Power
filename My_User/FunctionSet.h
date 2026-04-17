@@ -29,6 +29,7 @@ typedef struct
 	uint8_t SetVIState;               //设置电压步进模式  有 退出 第一位 第二位 
 	uint8_t SetStepState;               //设置电流步进模式 有 退出 第一位 第二位 第三位
 	uint8_t Encoder_State;                 //编码器状态  闲置 正转 反转
+	uint8_t ProtectState;                  //保护状态 0正常 1过压 2过流 3过温
 	uint16_t Set_VOUT  ;                  //设置电压值(单位:10mV)
 	uint16_t Set_IOUT  ;                  //设置电流值(单位:1mA)
 
@@ -40,6 +41,7 @@ typedef struct
 	void (*OK_Switch_Adjust)(void);	   		//步进开关调节
 	void (*Encoder_Direction_Adjust)(Direction_Change_t); //编码器方向调整 
 	void (*OUT_VAL_Ctrl)(void);  						  //输出电压 电流控制
+	void (*Check_Protect)(void);                          //保护检查
 
 }FunctionSet_Type;
 

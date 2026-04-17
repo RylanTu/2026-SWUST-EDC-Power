@@ -1,5 +1,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "MyAdc_Apply.h"
+#include <math.h>
 
 
 
@@ -74,13 +75,24 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   SUM[2] += MyADC.Vin[0];
   SUM[3] += MyADC.Vout[0];
 
-  MyADC.Ni = (SUM[0] / PW_ADC_SAMPLE_LEN) * (3.3/4095) ;//温度
+  {
+    float v_ntc = (SUM[0] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f);
+    float r_ntc;
+
+    if(v_ntc >= 3.299f)
+    {
+      v_ntc = 3.299f;
+    }
+    r_ntc = 10000.0f * v_ntc / (3.3f - v_ntc);
+    MyADC.Ni = 1.0f / (logf(r_ntc / 10000.0f) / 3435.0f + 1.0f / 298.15f) - 273.15f;//温度(℃)//2026.4.17 RylanTu:基于pjz的基础上修改
+  }
   //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /34/0.025 ;//理论34
   //MyADC.Io = 2 * (3.3/4095) /34/0.025 ;//理论34
   //printf("S V:%d\r\n\r\n",SUM[1]);
-  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025 ;//运放增益约15，采样电阻0.025R
-  MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3/4095) *((100+5.1)/5.1);  //输入电压
-  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4095)*110;  //ADC_VOUT经0.1倍运放和11分压链路折算
+  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025;//运放增益约15，采样电阻0.025R
+  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 1.0f;   //输出电流
+  MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //输入电压
+  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //输出电压
 
   //MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4096) *((100+10)/10)/1.1;
 

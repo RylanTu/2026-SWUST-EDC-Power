@@ -29,6 +29,7 @@ System_t System =
 static void My_Run()
 {  
     LED.RUN_LED_Flip();
+    Function_SET.Check_Protect(); //保护检查
     My_DisplayTask(); //显示
     printf("MyADC.Ni:%02f\r\n\r\n",MyADC.Ni);
     //printf("MyADC.Vo:%02f\r\n\r\n",MyADC.Vo); 

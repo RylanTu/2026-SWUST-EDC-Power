@@ -1,5 +1,10 @@
 #include "Display.h"
 
+/* 显示报警阈值 */
+#define DISP_WARN_VOLT   12.0f   //输出过压报警阈值(V)
+#define DISP_WARN_CURR    1.0f   //输出过流报警阈值(A)
+#define DISP_WARN_TEMP   70.0f   //过温报警阈值(℃)
+
 //static void Relay_State(void);
 
 
@@ -81,20 +86,31 @@ static void DisplayShow_Outval(void)
 {
   char buf[32];
   float P_OUT;                    //输出功率
+  float temperature;
   uint8_t percent;
   float set_voltage;
   float set_current;
 
   P_OUT = MyADC.Io * MyADC.Vo;
+  temperature = MyADC.Ni;
   set_voltage = Display_GetSetVoltage();
   set_current = Display_GetSetCurrent();
 
   // 顶部两行固定显示实时输出电压、电流。
   snprintf(buf, sizeof(buf), "VO :%.2fV", MyADC.Vo);
-  TFT_LCD.TFT_ShowString(0, 0, buf, Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_ON);
+  TFT_LCD.TFT_ShowString(0, 0, buf,
+                         (MyADC.Vo > DISP_WARN_VOLT) ? Color_RED : Color_WHITE,
+                         Color_BLACK, ASCII_font_16, font_overlay_ON);
 
   snprintf(buf, sizeof(buf), "IO :%.3fA", MyADC.Io);
-  TFT_LCD.TFT_ShowString(0, 16, buf, Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_ON);
+  TFT_LCD.TFT_ShowString(0, 16, buf,
+                         (MyADC.Io > DISP_WARN_CURR) ? Color_RED : Color_WHITE,
+                         Color_BLACK, ASCII_font_16, font_overlay_ON);
+
+  snprintf(buf, sizeof(buf), "TEMP:%.1fC", temperature);
+  TFT_LCD.TFT_ShowString(0, 64, buf,
+                         (temperature > DISP_WARN_TEMP) ? Color_RED : Color_WHITE,
+                         Color_BLACK, ASCII_font_16, font_overlay_ON);
 
   if(Function_SET.SetMenuState==Menu_OUT_State)        //菜单输出模式
   {

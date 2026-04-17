@@ -2,6 +2,9 @@
 #include "FunctionSet.h"
 
 /* Private define-------------------------------------------------------------*/
+#define PROTECT_VOLT   12.5f   //过压保护阈值(V)
+#define PROTECT_CURR    1.2f   //过流保护阈值(A)
+#define PROTECT_TEMP   70.0f   //过温保护阈值(℃)
 
 /* Private variables----------------------------------------------------------*/
 
@@ -19,6 +22,7 @@ static void DOWN_Switch_Adjust(void);	//下键开关调节
 static void OK_Switch_Adjust(void);	  	 //步进开关调节
 static void Encoder_Direction_Adjust(Direction_Change_t Direction_Change);//编码器开关调节
 static void OUT_VAL_Ctrl(void);				//输出电压 电流控制
+static void Check_Protect(void);			//保护检查
 
 
 FunctionSet_Type  Function_SET =    //功能设置
@@ -29,6 +33,7 @@ FunctionSet_Type  Function_SET =    //功能设置
 	SET_V_State,		 	//设置电压模式
 	SET_State_First,		//设置步进第一位
 	Idle_State,				//编码器闲置状态
+	0,                      //ProtectState 初始正常
 	SET_VOUT_DEFAULT ,		//设置电压默认值 6.00V
 	SET_IOUT_DEFAULT ,   	//设置电流默认值 0.500A
 
@@ -38,7 +43,8 @@ FunctionSet_Type  Function_SET =    //功能设置
 	DOWN_Switch_Adjust, 		//下键开关调节
 	OK_Switch_Adjust,	   		//步进开关调节
 	Encoder_Direction_Adjust,
-	OUT_VAL_Ctrl      			 //输出电压 电流控制
+	OUT_VAL_Ctrl,      			 //输出电压 电流控制
+	Check_Protect                //保护检查
 };
 
 static void OUT_Switch_Adjust(void)  //输出开关调节
@@ -318,6 +324,38 @@ static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 		Iout_val=0;
 	}
 	
+}
+
+static void Check_Protect(void)  //保护检查
+{
+	//默认无保护
+	Function_SET.ProtectState = 0;
+
+	//过压保护
+	if(MyADC.Vo > PROTECT_VOLT)
+	{
+		Function_SET.ProtectState = 1;
+	}
+	//过流保护
+	else if(MyADC.Io > PROTECT_CURR)
+	{
+		Function_SET.ProtectState = 2;
+	}
+	//过温保护
+	else if(MyADC.Ni > PROTECT_TEMP)
+	{
+		Function_SET.ProtectState = 3;
+	}
+
+	if(Function_SET.ProtectState != 0)
+	{
+		if(Function_SET.PowrputState == ON_State)
+		{
+			PWMSET.PWM_Stop();
+			Function_SET.PowrputState = OFF_State;
+			printf("[PROTECT] state=%d\r\n", Function_SET.ProtectState);
+		}
+	}
 }
 
 
