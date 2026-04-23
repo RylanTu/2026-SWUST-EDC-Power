@@ -7,7 +7,7 @@
  *       · 模拟SPI → HAL_SPI_Transmit(&hspi2, ...)
  *       · delay_ms() → HAL_Delay()
  *       · 标准库GPIO → HAL_GPIO_WritePin()
- *       · 新增 TFT_LCD_t 结构体，保持与 Display.c 的接口兼容
+ *       · 新增 LCD_t 结构体，对外暴露统一的 LCD 操作接口
  *       · TFT_DrawRectangle 修正为绝对坐标语义（x1,y1,x2,y2）
  *=============================================================================*/
 #include "lcd.h"
