@@ -44,7 +44,7 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add sources to executable
 set(MY_USER_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/TFT_240.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/My_User/lcd.c
     ${CMAKE_CURRENT_SOURCE_DIR}/My_User/Display.c
     ${CMAKE_CURRENT_SOURCE_DIR}/My_User/FunctionSet.c
     ${CMAKE_CURRENT_SOURCE_DIR}/My_User/key.c

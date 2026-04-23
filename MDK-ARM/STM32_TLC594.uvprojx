@@ -610,16 +610,6 @@
               <FileType>5</FileType>
               <FilePath>..\My_User\key.h</FilePath>
             </File>
-            <File>
-              <FileName>OLED.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\My_User\OLED.c</FilePath>
-            </File>
-            <File>
-              <FileName>OLED_Data.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\My_User\OLED_Data.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
