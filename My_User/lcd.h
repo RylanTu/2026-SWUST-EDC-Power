@@ -42,9 +42,9 @@
 #define LCD_CS_Clr   HAL_GPIO_WritePin(TFT_CS_GPIO_Port,  TFT_CS_Pin,  GPIO_PIN_RESET)  /* 片选使能 */
 #define LCD_CS_Set   HAL_GPIO_WritePin(TFT_CS_GPIO_Port,  TFT_CS_Pin,  GPIO_PIN_SET)    /* 片选释放 */
 
-/* 背光极性：高=关，低=开（若硬件反接，交换两行即可） */
-#define LCD_BLK_OFF  HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_SET)    /* 关闭背光 */
-#define LCD_BLK_ON   HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_RESET)  /* 开启背光 */
+/* 背光极性：高=开，低=关（与原标准库 LCD_BLK_Set 打开背光保持一致） */
+#define LCD_BLK_OFF  HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_RESET)  /* 关闭背光 */
+#define LCD_BLK_ON   HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_SET)    /* 开启背光 */
 
 /*---------------------------------------------------------------------------
  * 颜色定义（RGB565 格式，16位）

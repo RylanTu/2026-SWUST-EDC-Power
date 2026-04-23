@@ -156,6 +156,12 @@ static void LCD_Init(void)
 {
     LCD_BLK_OFF;        /* 初始化期间关闭背光，避免花屏 */
 
+    /* 与原标准库一致：先拉到空闲态，避免上电后误命令 */
+    LCD_CS_Set;
+    LCD_DC_Set;
+    LCD_RES_Set;
+    HAL_Delay(10);
+
     /* --- 硬件复位 --- */
     LCD_RES_Clr;
     HAL_Delay(100);

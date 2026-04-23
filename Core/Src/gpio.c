@@ -57,8 +57,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(FAN_GPIO_Port, FAN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, TFT_BLK_Pin|TFT_CS_Pin|TFT_DC_Pin|TFT_RES_Pin
-                          |IIC_SCL_Pin|IC_SDA_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, TFT_BLK_Pin|IIC_SCL_Pin|IC_SDA_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, TFT_CS_Pin|TFT_DC_Pin|TFT_RES_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin : LED_RUN_Pin */
   GPIO_InitStruct.Pin = LED_RUN_Pin;
