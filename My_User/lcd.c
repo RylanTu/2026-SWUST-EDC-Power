@@ -20,6 +20,9 @@
  * 私有函数原型声明
  *---------------------------------------------------------------------------*/
 static void LCD_Writ_Bus(uint8_t dat);
+static void LCD_WriteBytes(const uint8_t *buf, uint16_t len);
+static void LCD_BeginWrite(void);
+static void LCD_EndWrite(void);
 static void LCD_WR_DATA8(uint8_t dat);
 static void LCD_WR_DATA16(uint16_t dat);
 static void LCD_WR_REG(uint8_t dat);
@@ -71,9 +74,31 @@ LCD_t LCD =
  */
 static void LCD_Writ_Bus(uint8_t dat)
 {
-    LCD_CS_Clr;                                   /* 拉低片选，开始通信 */
     HAL_SPI_Transmit(&hspi2, &dat, 1, 3);         /* 发送1字节，超时3ms */
-    LCD_CS_Set;                                   /* 释放片选，结束通信 */
+}
+
+/**
+ * @brief  批量发送字节流
+ */
+static void LCD_WriteBytes(const uint8_t *buf, uint16_t len)
+{
+    HAL_SPI_Transmit(&hspi2, (uint8_t *)buf, len, 10);
+}
+
+/**
+ * @brief  开始一次 LCD 写事务（CS 拉低）
+ */
+static void LCD_BeginWrite(void)
+{
+    LCD_CS_Clr;
+}
+
+/**
+ * @brief  结束一次 LCD 写事务（CS 释放）
+ */
+static void LCD_EndWrite(void)
+{
+    LCD_CS_Set;
 }
 
 /**
@@ -83,7 +108,9 @@ static void LCD_Writ_Bus(uint8_t dat)
 static void LCD_WR_DATA8(uint8_t dat)
 {
     LCD_DC_Set;               /* DC=1：数据模式 */
+    LCD_BeginWrite();
     LCD_Writ_Bus(dat);
+    LCD_EndWrite();
 }
 
 /**
@@ -92,8 +119,13 @@ static void LCD_WR_DATA8(uint8_t dat)
  */
 static void LCD_WR_DATA16(uint16_t dat)
 {
-    LCD_WR_DATA8((uint8_t)(dat >> 8));    /* 高字节 */
-    LCD_WR_DATA8((uint8_t)(dat & 0xFF)); /* 低字节 */
+    uint8_t bytes[2];
+    bytes[0] = (uint8_t)(dat >> 8);       /* 高字节 */
+    bytes[1] = (uint8_t)(dat & 0xFF);     /* 低字节 */
+    LCD_DC_Set;
+    LCD_BeginWrite();
+    LCD_WriteBytes(bytes, 2);
+    LCD_EndWrite();
 }
 
 /**
@@ -103,7 +135,9 @@ static void LCD_WR_DATA16(uint16_t dat)
 static void LCD_WR_REG(uint8_t dat)
 {
     LCD_DC_Clr;               /* DC=0：命令模式 */
+    LCD_BeginWrite();
     LCD_Writ_Bus(dat);
+    LCD_EndWrite();
     LCD_DC_Set;               /* 恢复数据模式，为后续数据做准备 */
 }
 
@@ -252,15 +286,51 @@ static void LCD_Init(void)
  */
 static void LCD_FillColor(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, LCD_Color_t color)
 {
-    uint16_t i, j;
-    LCD_Address_Set(x1, y1, x2 - 1, y2 - 1);   /* 设置地址窗口（闭区间） */
-    for(i = y1; i < y2; i++)
+    uint16_t i;
+    uint16_t width;
+    uint16_t height;
+    uint16_t px;
+    uint8_t color_pair[2];
+    uint8_t line_buf[320];
+
+    /* 边界保护：坐标裁剪 + 空区间直接返回 */
+    if(x1 >= LCD_W || y1 >= LCD_H)
     {
-        for(j = x1; j < x2; j++)
-        {
-            LCD_WR_DATA16((uint16_t)color);
-        }
+        return;
     }
+    if(x2 > LCD_W)
+    {
+        x2 = LCD_W;
+    }
+    if(y2 > LCD_H)
+    {
+        y2 = LCD_H;
+    }
+    if(x2 <= x1 || y2 <= y1)
+    {
+        return;
+    }
+
+    width = (uint16_t)(x2 - x1);
+    height = (uint16_t)(y2 - y1);
+    color_pair[0] = (uint8_t)((uint16_t)color >> 8);
+    color_pair[1] = (uint8_t)((uint16_t)color & 0xFF);
+
+    /* 预填充一行像素缓冲，降低每像素调用开销并保证数据突发连续 */
+    for(px = 0; px < width; px++)
+    {
+        line_buf[2U * px] = color_pair[0];
+        line_buf[2U * px + 1U] = color_pair[1];
+    }
+
+    LCD_Address_Set(x1, y1, x2 - 1, y2 - 1);   /* 设置地址窗口（闭区间） */
+    LCD_DC_Set;
+    LCD_BeginWrite();
+    for(i = 0; i < height; i++)
+    {
+        LCD_WriteBytes(line_buf, (uint16_t)(2U * width));
+    }
+    LCD_EndWrite();
 }
 
 /**
