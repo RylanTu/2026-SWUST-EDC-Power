@@ -10,68 +10,68 @@
 /* Private function prototypes------------------------------------------------*/      
 /* Private function prototypes------------------------------------------------*/      
 /******************************************************************
-*º¯ÊıÃû³Æ:	HAL_GPIO_EXTI_Callback   Íâ²¿ÖĞ¶Ï»Øµ÷º¯Êı
-*º¯Êı¹¦ÄÜ:	°´¼üÖĞ¶Ï
-*º¯Êı²ÎÊı:	°´¼üÖµ
-*·µ »Ø Öµ:	ÎŞ
+*å‡½æ•°åç§°:	HAL_GPIO_EXTI_Callback   å¤–éƒ¨ä¸­æ–­å›è°ƒå‡½æ•°
+*å‡½æ•°åŠŸèƒ½:	æŒ‰é”®ä¸­æ–­
+*å‡½æ•°å‚æ•°:	æŒ‰é”®å€¼
+*è¿” å› å€¼:	æ— 
 *******************************************************************/
 /* Private function prototypes------------------------------------------------*/      
 /******************************************************************
-*º¯ÊıÃû³Æ:	°´¼ü´¦Àíº¯Êı
-*º¯Êı¹¦ÄÜ:	°´¼üÖĞ¶Ï
-*º¯Êı²ÎÊı:	°´¼üÖµ
-*·µ »Ø Öµ:	ÎŞ
+*å‡½æ•°åç§°:	æŒ‰é”®å¤„ç†å‡½æ•°
+*å‡½æ•°åŠŸèƒ½:	æŒ‰é”®ä¸­æ–­
+*å‡½æ•°å‚æ•°:	æŒ‰é”®å€¼
+*è¿” å› å€¼:	æ— 
 *******************************************************************/
 void Key_deal(uint8_t key_num)
 {
 switch (key_num)
      {
           case 1:
-               KEY_UP.KEY_Flag=TRUE; //UP¼ü°´ÏÂ
+               KEY_UP.KEY_Flag=TRUE; //UPé”®æŒ‰ä¸‹
                //printf(" The KEY_UP button is pressed!\r\n\r\n");
                break;
           case 2:
-               KEY_SET.KEY_Flag=TRUE; //SET¼ü°´ÏÂ
+               KEY_SET.KEY_Flag=TRUE; //SETé”®æŒ‰ä¸‹
                //printf(" The KEY_SET button is pressed!\r\n\r\n");
                break;
           case 3:
-               KEY_DOWN.KEY_Flag=TRUE; //DOWN¼ü°´ÏÂ
+               KEY_DOWN.KEY_Flag=TRUE; //DOWNé”®æŒ‰ä¸‹
                //printf(" The KEY_DOWN button is pressed!\r\n\r\n");
                break;
           case  4:
-               KEY_ON.KEY_Flag=TRUE; //ON¼ü°´ÏÂ
+               KEY_ON.KEY_Flag=TRUE; //ONé”®æŒ‰ä¸‹
                //printf(" The KEY_ON button is pressed!\r\n\r\n");
                break;
           case  5:
-               KEY_OK.KEY_Flag=TRUE; //OK¼ü°´ÏÂ
+               KEY_OK.KEY_Flag=TRUE; //OKé”®æŒ‰ä¸‹
                //printf(" The KEY_OK button is pressed!\r\n\r\n");
                break;
           default:  
-               printf("²»ÖªÃû°´¼ü!\r\n\r\n");   //´íÎó-Íâ²¿ÖĞ¶Ï»Øµ÷º¯ÊıÖĞ£¬°´¼ü¼üÖµ´íÎó
+               printf("ä¸çŸ¥åæŒ‰é”®!\r\n\r\n");   //é”™è¯¯-å¤–éƒ¨ä¸­æ–­å›è°ƒå‡½æ•°ä¸­ï¼ŒæŒ‰é”®é”®å€¼é”™è¯¯
     }
 }
 
 
 /******************************************************************
-*º¯ÊıÃû³Æ:	HAL_TIM_PeriodElapsedCallback   ¶¨Ê±Æ÷ÖĞ¶Ï»Øµ÷º¯Êı
-*º¯Êı¹¦ÄÜ:	
-*º¯Êı²ÎÊı:	¶¨Ê±Æ÷4
-*·µ »Ø Öµ:	ÎŞ
+*å‡½æ•°åç§°:	HAL_TIM_PeriodElapsedCallback   å®šæ—¶å™¨ä¸­æ–­å›è°ƒå‡½æ•°
+*å‡½æ•°åŠŸèƒ½:	
+*å‡½æ•°å‚æ•°:	å®šæ—¶å™¨4
+*è¿” å› å€¼:	æ— 
 *******************************************************************/
-void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)    //¶¨Ê±Æ÷4
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)    //å®šæ—¶å™¨4
 {
      if(htim->Instance == htim4.Instance)
      {
-          if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==1)  //ÏòÏÂ¼ÇÊı = ÄæÊ±Õë = Reverse_State = ¼õ
+          if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==1)  //å‘ä¸‹è®°æ•° = é€†æ—¶é’ˆ = Reverse_State = å‡
           {	          
-			//Function_SET.Encoder_Direction_Adjust(Reverse_State); //ÄæÊ±Õë
+			//Function_SET.Encoder_Direction_Adjust(Reverse_State); //é€†æ—¶é’ˆ
                Function_SET.Encoder_State=Reverse_State;
                //printf(" The Encoder_B button is pressed!\r\n\r\n");
                //__HAL_TIM_SET_COUNTER(&htim4,0);            
           }
-          else if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==0)   //ÏòÉÏ¼ÇÊı = Ë³Ê±Õë = Forward_State = ¼Ó
+          else if(__HAL_TIM_IS_TIM_COUNTING_DOWN(&htim4)==0)   //å‘ä¸Šè®°æ•° = é¡ºæ—¶é’ˆ = Forward_State = åŠ 
           {
-               //Function_SET.Encoder_Direction_Adjust(Forward_State); //Ë³Ê±Õë
+               //Function_SET.Encoder_Direction_Adjust(Forward_State); //é¡ºæ—¶é’ˆ
                Function_SET.Encoder_State=Forward_State;
                //printf(" The Encoder_A button is pressed!\r\n\r\n");
                //__HAL_TIM_SET_COUNTER(&htim4,0);           
@@ -82,23 +82,23 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)    //¶¨Ê±Æ÷4
 
 
 /******************************************************************
-*º¯ÊıÃû³Æ:	HAL_TIM_PeriodElapsedCallback   ¶¨Ê±Æ÷ÖĞ¶Ï»Øµ÷º¯Êı
-*º¯Êı¹¦ÄÜ:	ADC²É¼¯  Ö´ĞĞ¿ØÖÆÈÎÎñ  °´¼üÉ¨Ãè  
-*º¯Êı²ÎÊı:	¶¨Ê±Æ÷3  ¶¨Ê±Æ÷2       ¶¨Ê±Æ÷4
-*·µ »Ø Öµ:	ÎŞ
+*å‡½æ•°åç§°:	HAL_TIM_PeriodElapsedCallback   å®šæ—¶å™¨ä¸­æ–­å›è°ƒå‡½æ•°
+*å‡½æ•°åŠŸèƒ½:	ADCé‡‡é›†  æ‰§è¡Œæ§åˆ¶ä»»åŠ¡  æŒ‰é”®æ‰«æ  
+*å‡½æ•°å‚æ•°:	å®šæ—¶å™¨3  å®šæ—¶å™¨2       å®šæ—¶å™¨4
+*è¿” å› å€¼:	æ— 
 *******************************************************************/
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)    //¶¨Ê±Æ÷2     ¶¨Ê±Æ÷3-ÕâÀï²»Ê¹ÓÃ
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)    //å®šæ—¶å™¨2     å®šæ—¶å™¨3-è¿™é‡Œä¸ä½¿ç”¨
 {
  
 	if(htim->Instance == htim2.Instance)    //5ms
 	{
-          Key_Tick();                     //°´¼üÉ¨Ãè
-          My_Timer2.usDelay_Timer++;     //ÑÓÊ±
-          MyADC.ADC_GetNewSample ();       //ADC²É¼¯Ò»´Î        
-          if(++My_Timer2.usMCU_Run_Timer>=TIMER2_10mS)  //10mSÃëÖÓ 
+          Key_Tick();                     //æŒ‰é”®æ‰«æ
+          My_Timer2.usDelay_Timer++;     //å»¶æ—¶
+          MyADC.ADC_GetNewSample ();       //ADCé‡‡é›†ä¸€æ¬¡        
+          if(++My_Timer2.usMCU_Run_Timer>=TIMER2_10mS)  //10mSç§’é’Ÿ 
           {
-               KEY_ALL_Detect();   //°´¼ü¼ì²â×÷ÓÃ
-               Function_SET.OUT_VAL_Ctrl(); //Êä³öµçÑ¹µçÁ÷µ÷Õû
+               KEY_ALL_Detect();   //æŒ‰é”®æ£€æµ‹ä½œç”¨
+               Function_SET.OUT_VAL_Ctrl(); //è¾“å‡ºç”µå‹ç”µæµè°ƒæ•´
                My_Timer2.usMCU_Run_Timer=0;   
           }  
 	}

@@ -2,17 +2,17 @@
 #define __FAN_H__
 
 #include "MyApplication.h"
-//¶¨ÒåÃ¶¾ÙÀàÐÍ
+//å®šä¹‰æžšä¸¾ç±»åž‹
 
 
-//¶¨Òå½á¹¹ÌåÀàÐÍ
+//å®šä¹‰ç»“æž„ä½“ç±»åž‹
 
 typedef struct 
 {
     /* data */
-    void (*FAN_ON)(void);     //´ò¿ªFAN
-    void (*FAN_OFF)(void);    //¹Ø±ÕFAN
-    void (*FAN_Filp)(void);   //·­×ªFAN
+    void (*FAN_ON)(void);     //æ‰“å¼€FAN
+    void (*FAN_OFF)(void);    //å…³é—­FAN
+    void (*FAN_Filp)(void);   //ç¿»è½¬FAN
 } FAN_t ;
 
 

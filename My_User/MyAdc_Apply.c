@@ -9,7 +9,7 @@
 /* Private variables----------------------------------------------------------*/
 
 /* Private function prototypes------------------------------------------------*/
-//static void     Get_NTC_Voltage(void);       //»ñÈ¡ÎÂ¶ÈµçÑ¹
+//static void     Get_NTC_Voltage(void);       //èŽ·å–æ¸©åº¦ç”µåŽ‹
 static void ADC_Initial_Setup (void);
 static void ADC_GetNewSample (void);
 
@@ -29,33 +29,33 @@ MyADC_t  MyADC =
   ADC_GetNewSample
 };
 
-static void ADC_Initial_Setup(void)  //ADC³õÊ¼»¯ÉèÖÃ
+static void ADC_Initial_Setup(void)  //ADCåˆå§‹åŒ–è®¾ç½®
 {
-//HAL_TIM_Base_Start(&htim3);    //Æô¶¯¶¨Ê±Æ÷3
-  HAL_Delay(1);    //µÈ´ý³õÊ¼»¯ÎÈ¶¨
-  HAL_ADCEx_Calibration_Start(&hadc1); //Ð£×¼ADC
-  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)MyADC.ADC_ConverValue,(uint32_t) 4);   //Æô¶¯DAC£¬DMAÄ£Ê½
+//HAL_TIM_Base_Start(&htim3);    //å¯åŠ¨å®šæ—¶å™¨3
+  HAL_Delay(1);    //ç­‰å¾…åˆå§‹åŒ–ç¨³å®š
+  HAL_ADCEx_Calibration_Start(&hadc1); //æ ¡å‡†ADC
+  HAL_ADC_Start_DMA(&hadc1,(uint32_t*)MyADC.ADC_ConverValue,(uint32_t) 4);   //å¯åŠ¨DACï¼ŒDMAæ¨¡å¼
 
-//HAL_DAC_Start(&DAC_HandleTypeDef, DAC_CHANNEL_1); //????DAC?¡§??1
+//HAL_DAC_Start(&DAC_HandleTypeDef, DAC_CHANNEL_1); //å¯åŠ¨DACé€šé“1
 //HAL_DMA_Start(&hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 //HAL_DMA_Start_IT(DMA_HandleTypeDef *hdma, uint32_t SrcAddress, uint32_t DstAddress, uint32_t DataLength);
 
 }
 
-static void ADC_GetNewSample (void) //»ñÈ¡ADC²ÉÑùÖµ
+static void ADC_GetNewSample (void) //èŽ·å–ADCé‡‡æ ·å€¼
 {
   uint16_t i=0;
   float SUM[4]= {0.0f,0.0f,0.0f,0.0f};
-  float set_current;//2026.4.16 RylanTu:ÐÞ¸ÄÕâ¸ö¿ÉÒÔ¸ü¸ÄÇÐ»»ãÐÖµ
+  float set_current;//2026.4.16 RylanTu:ä¿®æ”¹è¿™ä¸ªå¯ä»¥æ›´æ”¹åˆ‡æ¢é˜ˆå€¼
   float cc_enter_threshold;
   float cc_exit_threshold;
 
-  for(i=PW_ADC_SAMPLE_LEN-1; i>0; i--)//»¬¶¯£¨µÝÍÆ£©Æ½¾ùÂË²¨
+  for(i=PW_ADC_SAMPLE_LEN-1; i>0; i--)//æ»‘åŠ¨ï¼ˆé€’æŽ¨ï¼‰å¹³å‡æ»¤æ³¢
   {
-    MyADC.Nin[i] = MyADC.Nin[i-1];  //NTCÎÂ¶È
-    MyADC.Iout[i] = MyADC.Iout[i-1]; //Êä³öµçÁ÷
-    MyADC.Vin[i]  = MyADC.Vin[i-1]; //ÊäÈëµçÑ¹
-    MyADC.Vout[i] = MyADC.Vout[i-1]; //Êä³öµçÑ¹
+    MyADC.Nin[i] = MyADC.Nin[i-1];  //NTCæ¸©åº¦
+    MyADC.Iout[i] = MyADC.Iout[i-1]; //è¾“å‡ºç”µæµ
+    MyADC.Vin[i]  = MyADC.Vin[i-1]; //è¾“å…¥ç”µåŽ‹
+    MyADC.Vout[i] = MyADC.Vout[i-1]; //è¾“å‡ºç”µåŽ‹
 
     SUM[0] += MyADC.Nin[i];
     SUM[1] += MyADC.Iout[i];
@@ -65,10 +65,10 @@ static void ADC_GetNewSample (void) //»ñÈ¡ADC²ÉÑùÖµ
 
 
   }
-  MyADC.Nin[0]   = MyADC.ADC_ConverValue[0]; //PA6->ÊäÈëÎÂ¶È
-  MyADC.Iout[0]  = MyADC.ADC_ConverValue[1]; //PA7->Êä³öµçÁ÷
-  MyADC.Vin [0]  = MyADC.ADC_ConverValue[2]; //PB0->ÊäÈëµçÑ¹
-  MyADC.Vout[0]  = MyADC.ADC_ConverValue[3]; //PB1->Êä³öµçÑ¹
+  MyADC.Nin[0]   = MyADC.ADC_ConverValue[0]; //PA6->è¾“å…¥æ¸©åº¦
+  MyADC.Iout[0]  = MyADC.ADC_ConverValue[1]; //PA7->è¾“å‡ºç”µæµ
+  MyADC.Vin [0]  = MyADC.ADC_ConverValue[2]; //PB0->è¾“å…¥ç”µåŽ‹
+  MyADC.Vout[0]  = MyADC.ADC_ConverValue[3]; //PB1->è¾“å‡ºç”µåŽ‹
 
   SUM[0] += MyADC.Nin[0];
   SUM[1] += MyADC.Iout[0];
@@ -84,31 +84,31 @@ static void ADC_GetNewSample (void) //»ñÈ¡ADC²ÉÑùÖµ
       v_ntc = 3.299f;
     }
     r_ntc = 10000.0f * v_ntc / (3.3f - v_ntc);
-    MyADC.Ni = 1.0f / (logf(r_ntc / 10000.0f) / 3435.0f + 1.0f / 298.15f) - 273.15f;//ÎÂ¶È(¡æ)//2026.4.17 RylanTu:»ùÓÚpjzµÄ»ù´¡ÉÏÐÞ¸Ä
+    MyADC.Ni = 1.0f / (logf(r_ntc / 10000.0f) / 3435.0f + 1.0f / 298.15f) - 273.15f;//æ¸©åº¦(â„ƒ)//2026.4.17 RylanTu:åŸºäºŽpjzçš„åŸºç¡€ä¸Šä¿®æ”¹
   }
-  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /34/0.025 ;//ÀíÂÛ34
-  //MyADC.Io = 2 * (3.3/4095) /34/0.025 ;//ÀíÂÛ34
+  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /34/0.025 ;//ç†è®º34
+  //MyADC.Io = 2 * (3.3/4095) /34/0.025 ;//ç†è®º34
   //printf("S V:%d\r\n\r\n",SUM[1]);
-  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025;//ÔË·ÅÔöÒæÔ¼15£¬²ÉÑùµç×è0.025R
-  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 1.0f;   //Êä³öµçÁ÷
-  MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //ÊäÈëµçÑ¹
-  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //Êä³öµçÑ¹
+  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025;//è¿æ”¾å¢žç›Šçº¦15ï¼Œé‡‡æ ·ç”µé˜»0.025R
+  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 1.0f;   //è¾“å‡ºç”µæµ
+  MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //è¾“å…¥ç”µåŽ‹
+  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //è¾“å‡ºç”µåŽ‹
 
   //MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4096) *((100+10)/10)/1.1;
 
 
-  //MyADC.Io = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3/4096) / 68.5 / 1.25 / 0.01 ;//ÀíÂÛ37£¬µÚÒ»°æÊµ²âÔöÒæ68.5£¬µÚ¶þ°æÊµ²âÔöÒæ68.5* 1.25
+  //MyADC.Io = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3/4096) / 68.5 / 1.25 / 0.01 ;//ç†è®º37ï¼Œç¬¬ä¸€ç‰ˆå®žæµ‹å¢žç›Š68.5ï¼Œç¬¬äºŒç‰ˆå®žæµ‹å¢žç›Š68.5* 1.25
   if(MyADC.Vo<0.2)
   {
     MyADC.Vo = 0;
   }
-  //LED.LED_Filp(LED_TEST); //TESTµÆ·­×ªÒ»´Î
+  //LED.LED_Filp(LED_TEST); //TESTç¯ç¿»è½¬ä¸€æ¬¡
   if(MyADC.Io<0)
   {
     MyADC.Io = 0;
   }
 
-  //ÔÚµçÁ÷ãÐÖµ¸½½ü¼ÓÈë³ÙÖÍ£¬±ÜÃâCV/CC×´Ì¬À´»Ø¶¶¶¯
+  //åœ¨ç”µæµé˜ˆå€¼é™„è¿‘åŠ å…¥è¿Ÿæ»žï¼Œé¿å…CV/CCçŠ¶æ€æ¥å›žæŠ–åŠ¨
   set_current = (float)Function_SET.Set_IOUT / 1000.0f;
   cc_enter_threshold = set_current * (1.0f + CC_HYS_ENTER_PCT / 100.0f);
   cc_exit_threshold = set_current * (1.0f - CC_HYS_EXIT_PCT / 100.0f);
@@ -116,14 +116,14 @@ static void ADC_GetNewSample (void) //»ñÈ¡ADC²ÉÑùÖµ
   {
     if(MyADC.Io <= cc_exit_threshold)
     {
-      Function_SET.OutPutState=CV_State;//ºãÑ¹
+      Function_SET.OutPutState=CV_State;//æ’åŽ‹
     }
   }
   else
   {
     if(MyADC.Io >= cc_enter_threshold)
     {
-      Function_SET.OutPutState=CC_State;//ºãÁ÷
+      Function_SET.OutPutState=CC_State;//æ’æµ
     }
   }
 

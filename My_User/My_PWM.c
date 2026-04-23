@@ -11,7 +11,7 @@ static void PWM_Stop(void);
 static void PWM_Start(void);
 static void PWM_Updata(uint16_t Duty_CV,uint16_t Duty_CC);
 
-//³õÊ¼Îª0
+//åˆå§‹ä¸º0
 PWMSet_Type  PWMSET =
  {
 	0,					
@@ -29,24 +29,24 @@ PWMSet_Type  PWMSET =
 
 static void PWM_Init(void)
 {
- 	//HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1); //  TIM1???PWM ???
- 	//HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);  //????????????PWM?????????
+	//HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1); // TIM1é€šé“1è¾“å‡ºPWM
+	//HAL_TIMEx_PWMN_Start(&htim1,TIM_CHANNEL_1);  // TIM1é€šé“1äº’è¡¥PWMè¾“å‡º
  	//HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_4);
     
- 	PWMSET.PWM_Stop();    //Í£Ö¹PWMÊä³ö
-	PWMSET.period = PWM_PERIOD_VAL;       //ÖÜÆÚ 1439
-	PWMSET.halfPeriod = PWMSET.period >> 1;   //°ëÖÜÆÚ 719
+ 	PWMSET.PWM_Stop();    //åœæ­¢PWMè¾“å‡º
+	PWMSET.period = PWM_PERIOD_VAL;       //å‘¨æœŸ 1439
+	PWMSET.halfPeriod = PWMSET.period >> 1;   //åŠå‘¨æœŸ 719
     
-    //ÉèÖÃ×î´óÏŞÖÆÖµ(ÖÜÆÚµÄ95%)ºÍ×îĞ¡ÏŞÖÆÖµ(ÖÜÆÚµÄ1%)
+    //è®¾ç½®æœ€å¤§é™åˆ¶å€¼(å‘¨æœŸçš„95%)å’Œæœ€å°é™åˆ¶å€¼(å‘¨æœŸçš„1%)
 	PWMSET.limitMax = 0.95f * PWMSET.period;  //1367
-	PWMSET.limitMin = 0;                      //ÔÊĞíÕ¼¿Õ±È½µµ½0//2026.4.16 RylanTu:²»È·¶¨¸Äµ½0»á²»»áÕ¨
+	PWMSET.limitMin = 0;                      //å…è®¸å ç©ºæ¯”é™åˆ°0//2026.4.16 RylanTu:ä¸ç¡®å®šæ”¹åˆ°0ä¼šä¸ä¼šç‚¸
     
- 	PWMSET.Status = Stop_State;   //½«³õÊ¼×´Ì¬ÉèÖÃÎªÍ£Ö¹×´Ì¬
+ 	PWMSET.Status = Stop_State;   //å°†åˆå§‹çŠ¶æ€è®¾ç½®ä¸ºåœæ­¢çŠ¶æ€
 }
 static void PWM_Start(void)
 {
 
-	PWMSET.Status = Start_State;    //??????
+	PWMSET.Status = Start_State;    //è®¾ç½®ä¸ºå¯åŠ¨çŠ¶æ€
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1,TIM_CHANNEL_4);
 	//__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,CV_Duty);  //CV
@@ -57,7 +57,7 @@ static void PWM_Start(void)
 
 static void PWM_Stop(void)
 {
-	PWMSET.Status = Stop_State;   //?????
+	PWMSET.Status = Stop_State;   //è®¾ç½®ä¸ºåœæ­¢çŠ¶æ€
 	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_1);
 	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_4);
 	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,0);
@@ -66,12 +66,12 @@ static void PWM_Stop(void)
 
 
 //CC_Duty=(float)((((Iout_val*0.025)/0.75+(Iout_val*0.0908*3))/3.31)*1440);
-//CC_Duty=(float)((((Iout_val*0.0254)/0.75+((Iout_val*0.0254)/0.75/4*30))/3.3)*1440); //???????ÛF????£
+//CC_Duty=(float)((((Iout_val*0.0254)/0.75+((Iout_val*0.0254)/0.75/4*30))/3.3)*1440); //ç”µæµç¯å ç©ºæ¯”ä¼°ç®—ï¼ˆå‚æ•°å¾…æ ‡å®šï¼‰
 static void PWM_Updata( uint16_t Duty_CV , uint16_t Duty_CC)
 {
 	int16_t CV_duty=0,CC_duty=0;
 	
-	if(PWMSET.Status == Start_State)  //?????????
+	if(PWMSET.Status == Start_State)  //ä»…åœ¨PWMå¯åŠ¨æ—¶æ›´æ–°å ç©ºæ¯”
 	{
 		if((int16_t)Duty_CV<0)
 		{

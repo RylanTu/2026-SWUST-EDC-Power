@@ -3,7 +3,7 @@
 
 #include "MyApplication.h"
 
-//¶¨ÒåÃ¶¾ÙÀàĞÍ
+//å®šä¹‰æšä¸¾ç±»å‹
 typedef enum
 {
 	TIMER2_10mS  	= (uint16_t)2,
@@ -21,12 +21,12 @@ typedef enum
 	TIMER2_3min   = (uint16_t)36000,
 }TIMER2_Value_t;
 
-//¶¨Òå½á¹¹ÌåÀàˆ¦
+//å®šä¹‰ç»“æ„ä½“ç±»å‹
 typedef struct
 {
-    uint16_t volatile usMCU_Run_Timer;  //ÏµÍ³ÔËŞƒ¶¨Ê±Æ÷
-	uint16_t volatile usDelay_Timer;    //ÑÓÊ±¶¨Ê±‡’
-	void (*Timer2_Start_IT)(void);      //¶¨Ê±‡’2ÒÔÖĞ”åÄ£Ê½…ÌÊÆ
+    uint16_t volatile usMCU_Run_Timer;  //ç³»ç»Ÿè¿è¡Œå®šæ—¶å™¨
+	uint16_t volatile usDelay_Timer;    //å»¶æ—¶å®šæ—¶å™¨
+	void (*Timer2_Start_IT)(void);      //å®šæ—¶å™¨2ä»¥ä¸­æ–­æ¨¡å¼å¯åŠ¨
 } My_Timer2_t;
 
 /* extern variables-----------------------------------------------------------*/

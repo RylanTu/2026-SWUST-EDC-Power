@@ -11,82 +11,82 @@
 #define SET_VOUT_DEFAULT 600U // 6.00V (unit: 10mV)
 #define SET_IOUT_DEFAULT 500U // 0.500A (unit: 1mA)
 
-//·½Ïò
+//æ–¹å‘
 typedef enum
 {
-	Idle_State = 	(uint8_t)0,     //ÏĞÖÃ×´Ì¬
-	Forward_State = (uint8_t)1,  //Ë³Ê±·½Ïò
-	Reverse_State = (uint8_t)2,  //ÄæÊ±·½Ïò
+	Idle_State = 	(uint8_t)0,     //é—²ç½®çŠ¶æ€
+	Forward_State = (uint8_t)1,  //é¡ºæ—¶æ–¹å‘
+	Reverse_State = (uint8_t)2,  //é€†æ—¶æ–¹å‘
 
 }Direction_Change_t;
 
 
 typedef struct  
 {
-	uint8_t PowrputState ;           	//µçÔ´Ä£Ê½    ÓĞ¿ª»úÄ£Ê½ ¹Ø»úÄ£Ê½
-	uint8_t OutPutState;				//Êä³öÄ£Ê½	  ÓĞºãÑ¹Ä£Ê½ ºãÁ÷Ä£Ê½
-	uint8_t SetMenuState;               //²Ëµ¥Ä£Ê½×´Ì¬ Êä³ö ÉèÖÃ
-	uint8_t SetVIState;               //ÉèÖÃµçÑ¹²½½øÄ£Ê½  ÓĞ ÍË³ö µÚÒ»Î» µÚ¶şÎ» 
-	uint8_t SetStepState;               //ÉèÖÃµçÁ÷²½½øÄ£Ê½ ÓĞ ÍË³ö µÚÒ»Î» µÚ¶şÎ» µÚÈıÎ»
-	uint8_t Encoder_State;                 //±àÂëÆ÷×´Ì¬  ÏĞÖÃ Õı×ª ·´×ª
-	uint8_t ProtectState;                  //±£»¤×´Ì¬ 0Õı³£ 1¹ıÑ¹ 2¹ıÁ÷ 3¹ıÎÂ
-	uint16_t Set_VOUT  ;                  //ÉèÖÃµçÑ¹Öµ(µ¥Î»:10mV)
-	uint16_t Set_IOUT  ;                  //ÉèÖÃµçÁ÷Öµ(µ¥Î»:1mA)
+	uint8_t PowrputState ;           	//ç”µæºæ¨¡å¼    æœ‰å¼€æœºæ¨¡å¼ å…³æœºæ¨¡å¼
+	uint8_t OutPutState;				//è¾“å‡ºæ¨¡å¼	  æœ‰æ’å‹æ¨¡å¼ æ’æµæ¨¡å¼
+	uint8_t SetMenuState;               //èœå•æ¨¡å¼çŠ¶æ€ è¾“å‡º è®¾ç½®
+	uint8_t SetVIState;               //è®¾ç½®ç”µå‹æ­¥è¿›æ¨¡å¼  æœ‰ é€€å‡º ç¬¬ä¸€ä½ ç¬¬äºŒä½ 
+	uint8_t SetStepState;               //è®¾ç½®ç”µæµæ­¥è¿›æ¨¡å¼ æœ‰ é€€å‡º ç¬¬ä¸€ä½ ç¬¬äºŒä½ ç¬¬ä¸‰ä½
+	uint8_t Encoder_State;                 //ç¼–ç å™¨çŠ¶æ€  é—²ç½® æ­£è½¬ åè½¬
+	uint8_t ProtectState;                  //ä¿æŠ¤çŠ¶æ€ 0æ­£å¸¸ 1è¿‡å‹ 2è¿‡æµ 3è¿‡æ¸©
+	uint16_t Set_VOUT  ;                  //è®¾ç½®ç”µå‹å€¼(å•ä½:10mV)
+	uint16_t Set_IOUT  ;                  //è®¾ç½®ç”µæµå€¼(å•ä½:1mA)
 
       
-	void (*OUT_Switch_Adjust)(void);       	//µçÔ´¿ª/¹Ø»ú
-	void (*SET_Switch_Adjust)(void);       	//Êä³ö/ÉèÖÃÄ£Ê½
-	void (*UP_Switch_Adjust)(void); 		//ÉÏ¼ü¿ª¹Øµ÷½Ú
- 	void (*DOWN_Switch_Adjust)(void);		//ÏÂ¼ü¿ª¹Øµ÷½Ú
-	void (*OK_Switch_Adjust)(void);	   		//²½½ø¿ª¹Øµ÷½Ú
-	void (*Encoder_Direction_Adjust)(Direction_Change_t); //±àÂëÆ÷·½Ïòµ÷Õû 
-	void (*OUT_VAL_Ctrl)(void);  						  //Êä³öµçÑ¹ µçÁ÷¿ØÖÆ
-	void (*Check_Protect)(void);                          //±£»¤¼ì²é
+	void (*OUT_Switch_Adjust)(void);       	//ç”µæºå¼€/å…³æœº
+	void (*SET_Switch_Adjust)(void);       	//è¾“å‡º/è®¾ç½®æ¨¡å¼
+	void (*UP_Switch_Adjust)(void); 		//ä¸Šé”®å¼€å…³è°ƒèŠ‚
+ 	void (*DOWN_Switch_Adjust)(void);		//ä¸‹é”®å¼€å…³è°ƒèŠ‚
+	void (*OK_Switch_Adjust)(void);	   		//æ­¥è¿›å¼€å…³è°ƒèŠ‚
+	void (*Encoder_Direction_Adjust)(Direction_Change_t); //ç¼–ç å™¨æ–¹å‘è°ƒæ•´ 
+	void (*OUT_VAL_Ctrl)(void);  						  //è¾“å‡ºç”µå‹ ç”µæµæ§åˆ¶
+	void (*Check_Protect)(void);                          //ä¿æŠ¤æ£€æŸ¥
 
 }FunctionSet_Type;
 
-//×´Ì¬
+//çŠ¶æ€
 typedef enum
 {
- OFF_State  = (uint8_t)0,   //¹Ø»ú×´Ì¬
- ON_State  	= (uint8_t)1,   //¿ª»ú×´Ì¬
-}OUT_Switch_Status_t;       //Êä³ö¿ª¹Ø×´Ì¬
+ OFF_State  = (uint8_t)0,   //å…³æœºçŠ¶æ€
+ ON_State  	= (uint8_t)1,   //å¼€æœºçŠ¶æ€
+}OUT_Switch_Status_t;       //è¾“å‡ºå¼€å…³çŠ¶æ€
 
 
-//×´Ì¬
+//çŠ¶æ€
 typedef enum
 {
- SET_State_First  	= 	(uint8_t)0,   //µçÁ÷ÉèÖÃ1Î»Ä£Ê½
- SET_State_Second	=	(uint8_t)1,   //µçÁ÷ÉèÖÃ2Î»Ä£Ê½
- SET_State_Thirdly	=	(uint8_t)2,   //µçÁ÷ÉèÖÃ3Î»Ä£Ê½
-}SET_Step_Status_t;         //ÉèÖÃ¿ª¹Ø×´Ì¬
+ SET_State_First  	= 	(uint8_t)0,   //ç”µæµè®¾ç½®1ä½æ¨¡å¼
+ SET_State_Second	=	(uint8_t)1,   //ç”µæµè®¾ç½®2ä½æ¨¡å¼
+ SET_State_Thirdly	=	(uint8_t)2,   //ç”µæµè®¾ç½®3ä½æ¨¡å¼
+}SET_Step_Status_t;         //è®¾ç½®å¼€å…³çŠ¶æ€
 
-//×´Ì¬
+//çŠ¶æ€
 typedef enum
 {
- CV_State	= 	(uint8_t)0,    //ºãÑ¹×´Ì¬
- CC_State	=	(uint8_t)1,    //ºãÁ÷×´Ì¬
-}OUT_Pattern_Status_t;         //Êä³öÄ£Ê½×´Ì¬
+ CV_State	= 	(uint8_t)0,    //æ’å‹çŠ¶æ€
+ CC_State	=	(uint8_t)1,    //æ’æµçŠ¶æ€
+}OUT_Pattern_Status_t;         //è¾“å‡ºæ¨¡å¼çŠ¶æ€
 
-//×´Ì¬
+//çŠ¶æ€
 typedef enum
 {
- Menu_OUT_State	= 	(uint8_t)0,    //²Ëµ¥Êä³ö×´Ì¬
- Menu_SET_State	=	(uint8_t)1,    //²Ëµ¥ÉèÖÃ×´Ì¬
-}SET_Menu_Status_t;       //ÉèÖÃ²Ëµ¥Ä£Ê½×´Ì¬
+ Menu_OUT_State	= 	(uint8_t)0,    //èœå•è¾“å‡ºçŠ¶æ€
+ Menu_SET_State	=	(uint8_t)1,    //èœå•è®¾ç½®çŠ¶æ€
+}SET_Menu_Status_t;       //è®¾ç½®èœå•æ¨¡å¼çŠ¶æ€
 
 
-//×´Ì¬
+//çŠ¶æ€
 typedef enum
 {
- SET_V_State	= 	(uint8_t)0,    //²Ëµ¥ÉèÖÃ×´Ì¬
- SET_I_State	=	(uint8_t)1,    //²Ëµ¥ÉèÖÃ×´Ì¬
-}SET_VI_Status_t;       //ÉèÖÃ²Ëµ¥Ä£Ê½×´Ì¬
+ SET_V_State	= 	(uint8_t)0,    //èœå•è®¾ç½®çŠ¶æ€
+ SET_I_State	=	(uint8_t)1,    //èœå•è®¾ç½®çŠ¶æ€
+}SET_VI_Status_t;       //è®¾ç½®èœå•æ¨¡å¼çŠ¶æ€
 
 
 
 
-extern FunctionSet_Type	Function_SET;    //¹¦ÄÜÉèÖÃ
+extern FunctionSet_Type	Function_SET;    //åŠŸèƒ½è®¾ç½®
 
 
 #endif /* __FunctionSet__ */

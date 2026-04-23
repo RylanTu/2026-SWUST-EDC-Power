@@ -2,13 +2,13 @@
 #define __MyAdc_Apply_H__
 
 #include "MyApplication.h"
-//ºê¶¨Òå
-# define  PW_ADC_SAMPLE_LEN 8   //ADCÑù±¾¿Õ¼ä³¤¶È
-# define  CC_HYS_ENTER_PCT 1.0f //½øÈëCCãĞÖµ°Ù·Ö±È
-# define  CC_HYS_EXIT_PCT  1.0f //ÍË³öCCãĞÖµ°Ù·Ö±È
-//¶¨ÒåÃ¶¾ÙÀàĞÍ
+//å®å®šä¹‰
+# define  PW_ADC_SAMPLE_LEN 8   //ADCæ ·æœ¬ç©ºé—´é•¿åº¦
+# define  CC_HYS_ENTER_PCT 1.0f //è¿›å…¥CCé˜ˆå€¼ç™¾åˆ†æ¯”
+# define  CC_HYS_EXIT_PCT  1.0f //é€€å‡ºCCé˜ˆå€¼ç™¾åˆ†æ¯”
+//å®šä¹‰æšä¸¾ç±»å‹
  
-//¶¨Òå½á¹¹ÌåÀàĞÍ
+//å®šä¹‰ç»“æ„ä½“ç±»å‹
 typedef struct
 {
    volatile uint16_t ADC_ConverValue[4];
@@ -21,8 +21,8 @@ typedef struct
 	 float Io;
 	 float Vi;
    float Vo;
-   void  (*ADC_Initial_Setup)(void); //ADC³õÊ¼»¯ÉèÖÃ
-   void  (*ADC_GetNewSample)(void);   // ADC²É¼¯Öµ
+   void  (*ADC_Initial_Setup)(void); //ADCåˆå§‹åŒ–è®¾ç½®
+   void  (*ADC_GetNewSample)(void);   // ADCé‡‡é›†å€¼
 
 } MyADC_t;
 /* extern variables-----------------------------------------------------------*/

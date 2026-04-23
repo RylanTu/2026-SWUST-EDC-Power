@@ -24,8 +24,8 @@ LED_t LED =
 
 /*
 * @name    LED_ON
-* @brief   LED´ò¿ª
-* @param   Num->±àºÅ
+* @brief   LEDæ‰“å¼€
+* @param   Num->ç¼–å·
 * @retval  None
 */
 static void RUN_LED_ON (void)
@@ -36,8 +36,8 @@ static void RUN_LED_ON (void)
 
 /*
 * @name    LED_OFF
-* @brief   LED¹Ø±Õ
-* @param   Num->±àºÅ
+* @brief   LEDå…³é—­
+* @param   Num->ç¼–å·
 * @retval  None
 */
 
@@ -50,8 +50,8 @@ static void RUN_LED_OFF (void)
 
 /*
 * @name    LED_Flip
-* @brief   LEDÈ¡·´
-* @param   Num->±àºÅ
+* @brief   LEDå–å
+* @param   Num->ç¼–å·
 * @retval  None
 */
 

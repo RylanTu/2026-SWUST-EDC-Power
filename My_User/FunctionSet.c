@@ -2,9 +2,9 @@
 #include "FunctionSet.h"
 
 /* Private define-------------------------------------------------------------*/
-#define PROTECT_VOLT   12.5f   //¹ıÑ¹±£»¤ãĞÖµ(V)
-#define PROTECT_CURR    1.2f   //¹ıÁ÷±£»¤ãĞÖµ(A)
-#define PROTECT_TEMP   70.0f   //¹ıÎÂ±£»¤ãĞÖµ(¡æ)
+#define PROTECT_VOLT   12.5f   //è¿‡å‹ä¿æŠ¤é˜ˆå€¼(V)
+#define PROTECT_CURR    1.2f   //è¿‡æµä¿æŠ¤é˜ˆå€¼(A)
+#define PROTECT_TEMP   70.0f   //è¿‡æ¸©ä¿æŠ¤é˜ˆå€¼(â„ƒ)
 
 /* Private variables----------------------------------------------------------*/
 
@@ -12,66 +12,66 @@
 
 
 /* Public variables-----------------------------------------------------------*/
-//½á¹¹Ìå¶¨Òå
+//ç»“æ„ä½“å®šä¹‰
 
-//static void Mode_Adjust ( ); //Ä£Ê½ÉèÖÃ
-static void OUT_Switch_Adjust(void);  	//µçÔ´¿ª/¹Ø»ú
-static void SET_Switch_Adjust(void);  	//Êä³ö/ÉèÖÃÄ£Ê½
-static void UP_Switch_Adjust(void); 	//ÉÏ¼ü¿ª¹Øµ÷½Ú
-static void DOWN_Switch_Adjust(void);	//ÏÂ¼ü¿ª¹Øµ÷½Ú
-static void OK_Switch_Adjust(void);	  	 //²½½ø¿ª¹Øµ÷½Ú
-static void Encoder_Direction_Adjust(Direction_Change_t Direction_Change);//±àÂëÆ÷¿ª¹Øµ÷½Ú
-static void OUT_VAL_Ctrl(void);				//Êä³öµçÑ¹ µçÁ÷¿ØÖÆ
-static void Check_Protect(void);			//±£»¤¼ì²é
+//static void Mode_Adjust ( ); //æ¨¡å¼è®¾ç½®
+static void OUT_Switch_Adjust(void);  	//ç”µæºå¼€/å…³æœº
+static void SET_Switch_Adjust(void);  	//è¾“å‡º/è®¾ç½®æ¨¡å¼
+static void UP_Switch_Adjust(void); 	//ä¸Šé”®å¼€å…³è°ƒèŠ‚
+static void DOWN_Switch_Adjust(void);	//ä¸‹é”®å¼€å…³è°ƒèŠ‚
+static void OK_Switch_Adjust(void);	  	 //æ­¥è¿›å¼€å…³è°ƒèŠ‚
+static void Encoder_Direction_Adjust(Direction_Change_t Direction_Change);//ç¼–ç å™¨å¼€å…³è°ƒèŠ‚
+static void OUT_VAL_Ctrl(void);				//è¾“å‡ºç”µå‹ ç”µæµæ§åˆ¶
+static void Check_Protect(void);			//ä¿æŠ¤æ£€æŸ¥
 
 
-FunctionSet_Type  Function_SET =    //¹¦ÄÜÉèÖÃ
+FunctionSet_Type  Function_SET =    //åŠŸèƒ½è®¾ç½®
 {
-	OFF_State,           	//µçÑ¹Ä£Ê½    ÓĞ¿ª»úÄ£Ê½  ¹Ø»úÄ£Ê½
-	CV_State,				//Êä³öÄ£Ê½	  ÓĞºãÑ¹Ä£Ê½  ºãÁ÷Ä£Ê½
-	Menu_OUT_State,			//ÉèÖÃ²Ëµ¥Êä³ö×´Ì¬
-	SET_V_State,		 	//ÉèÖÃµçÑ¹Ä£Ê½
-	SET_State_First,		//ÉèÖÃ²½½øµÚÒ»Î»
-	Idle_State,				//±àÂëÆ÷ÏĞÖÃ×´Ì¬
-	0,                      //ProtectState ³õÊ¼Õı³£
-	SET_VOUT_DEFAULT ,		//ÉèÖÃµçÑ¹Ä¬ÈÏÖµ 6.00V
-	SET_IOUT_DEFAULT ,   	//ÉèÖÃµçÁ÷Ä¬ÈÏÖµ 0.500A
+	OFF_State,           	//ç”µå‹æ¨¡å¼    æœ‰å¼€æœºæ¨¡å¼  å…³æœºæ¨¡å¼
+	CV_State,				//è¾“å‡ºæ¨¡å¼	  æœ‰æ’å‹æ¨¡å¼  æ’æµæ¨¡å¼
+	Menu_OUT_State,			//è®¾ç½®èœå•è¾“å‡ºçŠ¶æ€
+	SET_V_State,		 	//è®¾ç½®ç”µå‹æ¨¡å¼
+	SET_State_First,		//è®¾ç½®æ­¥è¿›ç¬¬ä¸€ä½
+	Idle_State,				//ç¼–ç å™¨é—²ç½®çŠ¶æ€
+	0,                      //ProtectState åˆå§‹æ­£å¸¸
+	SET_VOUT_DEFAULT ,		//è®¾ç½®ç”µå‹é»˜è®¤å€¼ 6.00V
+	SET_IOUT_DEFAULT ,   	//è®¾ç½®ç”µæµé»˜è®¤å€¼ 0.500A
 
-	OUT_Switch_Adjust,       	//µçÔ´¿ª/¹Ø»ú
-	SET_Switch_Adjust,			//Êä³ö/ÉèÖÃÄ£Ê½
-	UP_Switch_Adjust,  			//ÉÏ¼ü¿ª¹Øµ÷½Ú
-	DOWN_Switch_Adjust, 		//ÏÂ¼ü¿ª¹Øµ÷½Ú
-	OK_Switch_Adjust,	   		//²½½ø¿ª¹Øµ÷½Ú
+	OUT_Switch_Adjust,       	//ç”µæºå¼€/å…³æœº
+	SET_Switch_Adjust,			//è¾“å‡º/è®¾ç½®æ¨¡å¼
+	UP_Switch_Adjust,  			//ä¸Šé”®å¼€å…³è°ƒèŠ‚
+	DOWN_Switch_Adjust, 		//ä¸‹é”®å¼€å…³è°ƒèŠ‚
+	OK_Switch_Adjust,	   		//æ­¥è¿›å¼€å…³è°ƒèŠ‚
 	Encoder_Direction_Adjust,
-	OUT_VAL_Ctrl,      			 //Êä³öµçÑ¹ µçÁ÷¿ØÖÆ
-	Check_Protect                //±£»¤¼ì²é
+	OUT_VAL_Ctrl,      			 //è¾“å‡ºç”µå‹ ç”µæµæ§åˆ¶
+	Check_Protect                //ä¿æŠ¤æ£€æŸ¥
 };
 
-static void OUT_Switch_Adjust(void)  //Êä³ö¿ª¹Øµ÷½Ú
+static void OUT_Switch_Adjust(void)  //è¾“å‡ºå¼€å…³è°ƒèŠ‚
 { 
-	if(Function_SET.PowrputState==OFF_State)   //¿ª»ú×´Ì¬
+	if(Function_SET.PowrputState==OFF_State)   //å¼€æœºçŠ¶æ€
     {
-		//PWMSET.BUCK_POWER_Start();	  //Ö´ĞĞ¿ª»úÈÎÎñ
+		//PWMSET.BUCK_POWER_Start();	  //æ‰§è¡Œå¼€æœºä»»åŠ¡
 		PWMSET.PWM_Start();
-		AT24CXX.Write_SET_VAL(Function_SET.Set_VOUT,Function_SET.Set_IOUT);//±¸·İÉèÖÃµçÑ¹
+		AT24CXX.Write_SET_VAL(Function_SET.Set_VOUT,Function_SET.Set_IOUT);//å¤‡ä»½è®¾ç½®ç”µå‹
 		printf(" The KEY_ON button is ON!\r\n\r\n"); 
-		Function_SET.PowrputState=ON_State;  //¹Ø»úÄ£Ê½ 
-		Function_SET.SetMenuState=Menu_OUT_State; //²Ëµ¥Êä³öÄ£Ê½
+		Function_SET.PowrputState=ON_State;  //å…³æœºæ¨¡å¼ 
+		Function_SET.SetMenuState=Menu_OUT_State; //èœå•è¾“å‡ºæ¨¡å¼
     }
 	else
     {
-		//PWMSET.BUCK_POWER_Stop();     //Ö´ĞĞ¹Ø»úÈÎÎñ
+		//PWMSET.BUCK_POWER_Stop();     //æ‰§è¡Œå…³æœºä»»åŠ¡
 		PWMSET.PWM_Stop();
 		printf(" The KEY_ON button is OFF!\r\n\r\n");
-		Function_SET.PowrputState=OFF_State;  //¹Ø»úÄ£Ê½ 
-		Function_SET.SetMenuState=Menu_OUT_State;  //²Ëµ¥Êä³öÄ£Ê½
+		Function_SET.PowrputState=OFF_State;  //å…³æœºæ¨¡å¼ 
+		Function_SET.SetMenuState=Menu_OUT_State;  //èœå•è¾“å‡ºæ¨¡å¼
     }  
 }
-static void SET_Switch_Adjust(void)  //Êä³ö/ÉèÖÃÄ£Ê½
+static void SET_Switch_Adjust(void)  //è¾“å‡º/è®¾ç½®æ¨¡å¼
 {	
-	if(Function_SET.PowrputState==OFF_State)  //¹Ø»úÄ£Ê½
+	if(Function_SET.PowrputState==OFF_State)  //å…³æœºæ¨¡å¼
 	{
-		if(Function_SET.SetMenuState==Menu_OUT_State)  //Êä³öÄ£Ê½ 
+		if(Function_SET.SetMenuState==Menu_OUT_State)  //è¾“å‡ºæ¨¡å¼ 
 		{
 			Function_SET.SetMenuState=Menu_SET_State;
 		}
@@ -82,7 +82,7 @@ static void SET_Switch_Adjust(void)  //Êä³ö/ÉèÖÃÄ£Ê½
 	} 	
 }
 
-static void UP_Switch_Adjust(void)  //ÉÏ¼ü¿ª¹Øµ÷½Ú
+static void UP_Switch_Adjust(void)  //ä¸Šé”®å¼€å…³è°ƒèŠ‚
 {
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
@@ -91,7 +91,7 @@ static void UP_Switch_Adjust(void)  //ÉÏ¼ü¿ª¹Øµ÷½Ú
 	
 }    	
 
-static void DOWN_Switch_Adjust(void)  //ÏÂ¼ü¿ª¹Øµ÷½Ú
+static void DOWN_Switch_Adjust(void)  //ä¸‹é”®å¼€å…³è°ƒèŠ‚
 {
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
@@ -99,15 +99,15 @@ static void DOWN_Switch_Adjust(void)  //ÏÂ¼ü¿ª¹Øµ÷½Ú
 	}
 }
 
-static void OK_Switch_Adjust(void)	   //²½½ø¿ª¹Øµ÷½Ú
+static void OK_Switch_Adjust(void)	   //æ­¥è¿›å¼€å…³è°ƒèŠ‚
 {
-	if(Function_SET.SetMenuState!=Menu_OUT_State) //ÉèÖÃÄ£Ê½
+	if(Function_SET.SetMenuState!=Menu_OUT_State) //è®¾ç½®æ¨¡å¼
 	{
-		switch(Function_SET.SetStepState)   // ²½½øÎ»
+		switch(Function_SET.SetStepState)   // æ­¥è¿›ä½
      	{
-      		case SET_State_First:Function_SET.SetStepState=SET_State_Second; break; //   µÚÒ»Î» 
-			case SET_State_Second:Function_SET.SetStepState=SET_State_Thirdly; break; //   µÚ¶şÎ» 
-			case SET_State_Thirdly:Function_SET.SetStepState=SET_State_First; break; //   µÚÈıÎ» 
+      		case SET_State_First:Function_SET.SetStepState=SET_State_Second; break; //   ç¬¬ä¸€ä½ 
+			case SET_State_Second:Function_SET.SetStepState=SET_State_Thirdly; break; //   ç¬¬äºŒä½ 
+			case SET_State_Thirdly:Function_SET.SetStepState=SET_State_First; break; //   ç¬¬ä¸‰ä½ 
       		default:Function_SET.SetStepState=SET_State_First;
      	}
 	}
@@ -117,15 +117,15 @@ static void OK_Switch_Adjust(void)	   //²½½ø¿ª¹Øµ÷½Ú
 
 
 
-static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±àÂëÆ÷µ÷½Ú
+static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //ç¼–ç å™¨è°ƒèŠ‚
 {
 	if(Function_SET.SetMenuState==Menu_SET_State) 
 	{
-		if(Function_SET.SetVIState==SET_V_State)  //ÉèÖÃµçÑ¹
+		if(Function_SET.SetVIState==SET_V_State)  //è®¾ç½®ç”µå‹
 		{
-			if(Direction_Change==Reverse_State)  //ÄæÊ±Õë×ª¶¯ ¼õ(2026.4.15 RylanTu:whyÇ°ÃæµÄÅĞ¶ÏÂß¼­Òª·´×ÅĞ´?)
+			if(Direction_Change==Reverse_State)  //é€†æ—¶é’ˆè½¬åŠ¨ å‡(2026.4.15 RylanTu:whyå‰é¢çš„åˆ¤æ–­é€»è¾‘è¦åç€å†™?)
 			{
-				//µçÑ¹¼õ
+				//ç”µå‹å‡
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
@@ -147,7 +147,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 					{
 							Function_SET.Set_VOUT= SET_VOUT_MIN;
 					}
-					break; //   µÚ¶şÎ» 
+					break; //   ç¬¬äºŒä½ 
 					case SET_State_Thirdly:
 						if(Function_SET.Set_VOUT>=100)
 					{
@@ -157,12 +157,12 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 					{
 							Function_SET.Set_VOUT= SET_VOUT_MIN;
 					}
-					break; //   µÚÈıÎ» 
+					break; //   ç¬¬ä¸‰ä½ 
 				}		
 			}
-			else  //Ë³Ê±Õë×ª¶¯ ¼Ó
+			else  //é¡ºæ—¶é’ˆè½¬åŠ¨ åŠ 
 			{
-				//µçÑ¹¼Ó
+				//ç”µå‹åŠ 
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
@@ -184,7 +184,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 					{
 							Function_SET.Set_VOUT= SET_VOUT_MAX;
 					}
-					break; //   µÚ¶şÎ» 
+					break; //   ç¬¬äºŒä½ 
 					case SET_State_Thirdly:
 						if(Function_SET.Set_VOUT <= (SET_VOUT_MAX - 100U))
 					{
@@ -194,18 +194,18 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 					{
 							Function_SET.Set_VOUT= SET_VOUT_MAX;
 					}
-					break; //   µÚÈıÎ» 
+					break; //   ç¬¬ä¸‰ä½ 
 				}
 			}
 			printf(" Function_SET.Set_VOUT: %d\r\n\r\n",Function_SET.Set_VOUT);
 	
 			
 		}
-		else////ÉèÖÃµçÁ÷
+		else////è®¾ç½®ç”µæµ
 		{
-			if(Direction_Change==Reverse_State)  //ÄæÊ±Õë×ª¶¯ ¼õ
+			if(Direction_Change==Reverse_State)  //é€†æ—¶é’ˆè½¬åŠ¨ å‡
 			{
-				// µçÁ÷¼õ
+				// ç”µæµå‡
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
@@ -238,12 +238,12 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 						Function_SET.Set_IOUT= SET_IOUT_MIN;
 					}
 					break;
-					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //ÉèÖÃµçÑ¹Ğ¡ÓÚ0Ê±µÈÓÚ0
+					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //è®¾ç½®ç”µå‹å°äº0æ—¶ç­‰äº0
 				}
 			}
 			else
 			{
-				//µçÁ÷¼Ó
+				//ç”µæµåŠ 
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
@@ -276,7 +276,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 						Function_SET.Set_IOUT= SET_IOUT_MAX;
 					}
 					break;
-					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //ÉèÖÃµçÑ¹Ğ¡ÓÚ0Ê±µÈÓÚ0
+					//Function_SET.Set_IOUT=(Function_SET.Set_IOUT<=0)?0:Function_SET.Set_IOUT;  //è®¾ç½®ç”µå‹å°äº0æ—¶ç­‰äº0
 				}
 			}
 		printf(" Function_SET.Set_IOUT: %d\r\n\r\n",Function_SET.Set_IOUT);
@@ -285,7 +285,7 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //±à
 }
 
 
-static void  OUT_VAL_Ctrl(void)  //Êä³öµçÑ¹ µçÁ÷¿ØÖÆ
+static void  OUT_VAL_Ctrl(void)  //è¾“å‡ºç”µå‹ ç”µæµæ§åˆ¶
 {
 	uint16_t CV_Duty;         //
 	uint16_t CC_Duty;         //
@@ -300,20 +300,20 @@ static void  OUT_VAL_Ctrl(void)  //Êä³öµçÑ¹ µçÁ÷¿ØÖÆ
 		//printf("Vout_val:%d\r\n\r\n",Vout_val);
 		//printf("Iout_val:%d\r\n\r\n",Iout_val);
 
-		// Set_VOUTµ¥Î»10mV: /100×ª»»ÎªV£¬ÔÙÆ¥Åä11·ÖÑ¹±È
+		// Set_VOUTå•ä½10mV: /100è½¬æ¢ä¸ºVï¼Œå†åŒ¹é…11åˆ†å‹æ¯”
 		SET_Vout_val=(float)Vout_val/100/11/3.3*1440;
 		//printf("SET_Vout_val:%f\r\n\r\n",SET_Vout_val); 
 		CV_Duty=(uint16_t)SET_Vout_val;
-		//CC_Duty=(float)((((Iout_val/100*0.0254)/0.75+((Iout_val/100*0.0254)/0.75/4*30))/3.3)*1440); //²ÉÑùµç×è0.025R
-		//CC_Duty=(float)(((Iout_val/100*0.025)/0.75+((Iout_val/100*0.025)/0.75/4*30))/3.3*1440); //²ÉÑùµç×è0.025R
+		//CC_Duty=(float)((((Iout_val/100*0.0254)/0.75+((Iout_val/100*0.0254)/0.75/4*30))/3.3)*1440); //é‡‡æ ·ç”µé˜»0.025R
+		//CC_Duty=(float)(((Iout_val/100*0.025)/0.75+((Iout_val/100*0.025)/0.75/4*30))/3.3*1440); //é‡‡æ ·ç”µé˜»0.025R
 		//CC_Duty=(uint16_t)((Iout_val/100*0.025)/3*34)/3.3*1440;
 
-		// Set_IOUTµ¥Î»1mA: /1000×ª»»ÎªA£»²ÉÑùµç×è0.025R£¬µçÁ÷»··Å´óÔ¼15±¶
+		// Set_IOUTå•ä½1mA: /1000è½¬æ¢ä¸ºAï¼›é‡‡æ ·ç”µé˜»0.025Rï¼Œç”µæµç¯æ”¾å¤§çº¦15å€
 		SET_Iout_val=(float)Iout_val/1000*0.025*15/3.3*1440;
 		//printf("SET_Iout_val:%f\r\n\r\n",SET_Iout_val); 
 		CC_Duty=(uint16_t)SET_Iout_val;
 
-		PWMSET.PWM_Updata(CV_Duty,CC_Duty);  //¸üĞÂÊä³öµçÁ÷ µçÑ¹
+		PWMSET.PWM_Updata(CV_Duty,CC_Duty);  //æ›´æ–°è¾“å‡ºç”µæµ ç”µå‹
 	
 		//printf("CV_Duty:%d\r\n\r\n",CV_Duty); 
 		//printf("CC_Duty:%d\r\n\r\n",CC_Duty); 
@@ -326,22 +326,22 @@ static void  OUT_VAL_Ctrl(void)  //Êä³öµçÑ¹ µçÁ÷¿ØÖÆ
 	
 }
 
-static void Check_Protect(void)  //±£»¤¼ì²é
+static void Check_Protect(void)  //ä¿æŠ¤æ£€æŸ¥
 {
-	//Ä¬ÈÏÎŞ±£»¤
+	//é»˜è®¤æ— ä¿æŠ¤
 	Function_SET.ProtectState = 0;
 
-	//¹ıÑ¹±£»¤
+	//è¿‡å‹ä¿æŠ¤
 	if(MyADC.Vo > PROTECT_VOLT)
 	{
 		Function_SET.ProtectState = 1;
 	}
-	//¹ıÁ÷±£»¤
+	//è¿‡æµä¿æŠ¤
 	else if(MyADC.Io > PROTECT_CURR)
 	{
 		Function_SET.ProtectState = 2;
 	}
-	//¹ıÎÂ±£»¤
+	//è¿‡æ¸©ä¿æŠ¤
 	else if(MyADC.Ni > PROTECT_TEMP)
 	{
 		Function_SET.ProtectState = 3;

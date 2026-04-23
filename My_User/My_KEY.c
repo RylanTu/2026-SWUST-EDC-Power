@@ -9,19 +9,19 @@
 
 
 /* Public variables-----------------------------------------------------------*/
-//½á¹¹Ìå¶¨Òå
-//2026.4.15 RylanTu:Õâ¶«Î÷¿ÉÄÜĞèÒªÖØ¹¹£¬Ã»ÓĞÊ¹ÓÃÍâ²¿ÖĞ¶Ï
-//static void Mode_Adjust ( ); //Ä£Ê½ÉèÖÃ
-static void KEY_ON_Detect(void);  //¿ª¹Ø¼ü
-static void KEY_OK_Detect(void);  //¿ª¹Ø¼ü
-static void KEY_UP_Detect(void);  //¿ª¹Ø¼ü
-static void KEY_SET_Detect(void);  //¿ª¹Ø¼ü
-static void KEY_DOWN_Detect(void);  //¿ª¹Ø¼ü
-static void KEY_EC11_Detect(void);  //¿ª¹Ø¼ü
-//static void Step_Adjust( ); //²½³¤µ÷½Ú
+//ç»“æ„ä½“å®šä¹‰
+//2026.4.15 RylanTu:è¿™ä¸œè¥¿å¯èƒ½éœ€è¦é‡æ„ï¼Œæ²¡æœ‰ä½¿ç”¨å¤–éƒ¨ä¸­æ–­
+//static void Mode_Adjust ( ); //æ¨¡å¼è®¾ç½®
+static void KEY_ON_Detect(void);  //å¼€å…³é”®
+static void KEY_OK_Detect(void);  //å¼€å…³é”®
+static void KEY_UP_Detect(void);  //å¼€å…³é”®
+static void KEY_SET_Detect(void);  //å¼€å…³é”®
+static void KEY_DOWN_Detect(void);  //å¼€å…³é”®
+static void KEY_EC11_Detect(void);  //å¼€å…³é”®
+//static void Step_Adjust( ); //æ­¥é•¿è°ƒèŠ‚
 //static void Encoder_Direction(Direction_Change_t Direction_Change);
 
-//½á¹¹Ìå¶¨Òå
+//ç»“æ„ä½“å®šä¹‰
 KEY_t  KEY_ON 	=	{FALSE,KEY_ON_Detect}; //
 KEY_t  KEY_OK 	=	{FALSE,KEY_OK_Detect}; //
 KEY_t  KEY_UP 	=	{FALSE,KEY_UP_Detect}; //
@@ -30,93 +30,93 @@ KEY_t  KEY_DOWN =	{FALSE,KEY_DOWN_Detect}; //
 KEY_EC11_t  KEY_EC11 =	{KEY_EC11_Detect}; //
 
 
-/*Âß¼­°´¼üÓ³Éä£¨ÎïÀíÒı½Å£©£º
-*key1(K4)-ÏòÉÏÑ¡Ôñ
-*key2(K3)-ÏòÏÂÑ¡Ôñ
-*key3(K2)-ÉèÖÃÊä³öµ÷½Ú
-*key4(K5)-¿ª¹Ø»úµ÷½Ú
-*key5(EC11°´Ñ¹)-²½½øµ÷½Ú
-*±àÂëÆ÷Ğı×ª-ÊıÖµ¼Ó¼õ
+/*é€»è¾‘æŒ‰é”®æ˜ å°„ï¼ˆç‰©ç†å¼•è„šï¼‰ï¼š
+*key1(K4)-å‘ä¸Šé€‰æ‹©
+*key2(K3)-å‘ä¸‹é€‰æ‹©
+*key3(K2)-è®¾ç½®è¾“å‡ºè°ƒèŠ‚
+*key4(K5)-å¼€å…³æœºè°ƒèŠ‚
+*key5(EC11æŒ‰å‹)-æ­¥è¿›è°ƒèŠ‚
+*ç¼–ç å™¨æ—‹è½¬-æ•°å€¼åŠ å‡
 */
-//2026.4.15 RylanTu:ÄãµÄÒâË¼ÊÇÕâ¸ö¶«Î÷ÓÃµÄ¶¨Ê±Æ÷ÖĞ¶ÏÉ¨Ãè¶ø²»ÊÇÍâ²¿ÖĞ¶Ï?
+//2026.4.15 RylanTu:ä½ çš„æ„æ€æ˜¯è¿™ä¸ªä¸œè¥¿ç”¨çš„å®šæ—¶å™¨ä¸­æ–­æ‰«æè€Œä¸æ˜¯å¤–éƒ¨ä¸­æ–­?
 
 static void KEY_ON_Detect(void)
 {
 	if(KEY_ON.KEY_Flag==TRUE)
 	{
-		HAL_Delay(2);  //Èí¼şÈ¥¶¶
+		HAL_Delay(2);  //è½¯ä»¶å»æŠ–
 		if(HAL_GPIO_ReadPin(K2_GPIO_Port,K2_Pin) == GPIO_PIN_RESET)       
 		{
-			Function_SET.OUT_Switch_Adjust();  //Êä³ö¿ª¹Øµ÷½Ú
+			Function_SET.OUT_Switch_Adjust();  //è¾“å‡ºå¼€å…³è°ƒèŠ‚
 		}
-		KEY_ON.KEY_Flag=FALSE; //Çå³ı±êÖ¾Î»
+		KEY_ON.KEY_Flag=FALSE; //æ¸…é™¤æ ‡å¿—ä½
 	}
 } 
 static void KEY_OK_Detect(void)
 {
 	if(KEY_OK.KEY_Flag==TRUE)
 	{
-		HAL_Delay(2);  //Èí¼şÈ¥¶¶
+		HAL_Delay(2);  //è½¯ä»¶å»æŠ–
 		if(HAL_GPIO_ReadPin(EC11_GPIO_Port,EC11_Pin) == GPIO_PIN_RESET)
 		{
-			Function_SET.OK_Switch_Adjust();  //²½½ø¿ª¹Øµ÷½Ú	
+			Function_SET.OK_Switch_Adjust();  //æ­¥è¿›å¼€å…³è°ƒèŠ‚	
 		}
-		KEY_OK.KEY_Flag=FALSE; //Çå³ı±êÖ¾Î»
+		KEY_OK.KEY_Flag=FALSE; //æ¸…é™¤æ ‡å¿—ä½
 	}
 } 
 static void KEY_UP_Detect(void)
 {
 	if(KEY_UP.KEY_Flag==TRUE)
 	{
-//		HAL_Delay(10);  //Èí¼şÈ¥¶¶
+//		HAL_Delay(10);  //è½¯ä»¶å»æŠ–
 //		if(HAL_GPIO_ReadPin(KEY_UP_GPIO_Port,KEY_UP_Pin) == GPIO_PIN_RESET)
 //		{
-//			Function_SET.UP_Switch_Adjust();  //ÉÏ¼ü¿ª¹Øµ÷½Ú
+//			Function_SET.UP_Switch_Adjust();  //ä¸Šé”®å¼€å…³è°ƒèŠ‚
 //		}
-//		KEY_UP.KEY_Flag=FALSE; //Çå³ı±êÖ¾Î»
+//		KEY_UP.KEY_Flag=FALSE; //æ¸…é™¤æ ‡å¿—ä½
 	}
 } 
 static void KEY_SET_Detect(void)
 {
 	if(KEY_SET.KEY_Flag==TRUE)
 	{
-		HAL_Delay(10);  //Èí¼şÈ¥¶¶
+		HAL_Delay(10);  //è½¯ä»¶å»æŠ–
 		if(HAL_GPIO_ReadPin(K5_GPIO_Port,K5_Pin) == GPIO_PIN_RESET)
 		{
-			Function_SET.SET_Switch_Adjust();  //Êä³ö¿ª¹Øµ÷½Ú
+			Function_SET.SET_Switch_Adjust();  //è¾“å‡ºå¼€å…³è°ƒèŠ‚
 		}
-		KEY_SET.KEY_Flag=FALSE; //Çå³ı±êÖ¾Î»
+		KEY_SET.KEY_Flag=FALSE; //æ¸…é™¤æ ‡å¿—ä½
 	}
 } 
 static void KEY_DOWN_Detect(void)
 {
 	if(KEY_DOWN.KEY_Flag==TRUE)
 	{
-//		HAL_Delay(10);  //Èí¼şÈ¥¶¶
+//		HAL_Delay(10);  //è½¯ä»¶å»æŠ–
 //		if(HAL_GPIO_ReadPin(KEY_DOWN_GPIO_Port,KEY_DOWN_Pin) == GPIO_PIN_RESET)
 //		{
-//			Function_SET.DOWN_Switch_Adjust();  //ÏÂ¼ü¿ª¹Øµ÷½Ú
+//			Function_SET.DOWN_Switch_Adjust();  //ä¸‹é”®å¼€å…³è°ƒèŠ‚
 //		}
-//		KEY_DOWN.KEY_Flag=FALSE; //Çå³ı±êÖ¾Î»
+//		KEY_DOWN.KEY_Flag=FALSE; //æ¸…é™¤æ ‡å¿—ä½
 	}
 } 
 
-//Ğı×ª±àÂëÆ÷
+//æ—‹è½¬ç¼–ç å™¨
 static void KEY_EC11_Detect(void)
 {
 	if(Function_SET.Encoder_State==Reverse_State)
 	{
-		Function_SET.Encoder_Direction_Adjust(Reverse_State); //ÄæÊ±Õë
+		Function_SET.Encoder_Direction_Adjust(Reverse_State); //é€†æ—¶é’ˆ
 		printf(" The Encoder_A button is pressed!\r\n\r\n");
 
-		Function_SET.Encoder_State=Idle_State; //Çå³ı±êÖ¾Î»
+		Function_SET.Encoder_State=Idle_State; //æ¸…é™¤æ ‡å¿—ä½
 	}
 	else if(Function_SET.Encoder_State==Forward_State)
 	{		
-		Function_SET.Encoder_Direction_Adjust(Forward_State); //Ë³Ê±Õë
+		Function_SET.Encoder_Direction_Adjust(Forward_State); //é¡ºæ—¶é’ˆ
 		printf(" The Encoder_B button is pressed!\r\n\r\n");
 
-		Function_SET.Encoder_State=Idle_State; //Çå³ı±êÖ¾Î»
+		Function_SET.Encoder_State=Idle_State; //æ¸…é™¤æ ‡å¿—ä½
 	}	
 
 } 

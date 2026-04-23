@@ -4,7 +4,7 @@
 #include "MyApplication.h"
 
 
-#define AT24CXX_ADDRESS 0xA0  //µØÖ·
+#define AT24CXX_ADDRESS 0xA0  //åœ°å€
 
 #define I2C_HANDLE hi2c1
 #define PAGE_SIZE_24CXX  0x08
@@ -12,16 +12,16 @@
 
 
 
-//¶¨Òå½á¹¹ÌåÀàĞÍ
+//å®šä¹‰ç»“æ„ä½“ç±»å‹
 typedef struct
 {
-    uint8_t (*AT24CXX_IsDeviceReady)(void);  //Éè±¸¾ÍĞ÷
-    uint8_t (*AT24CXX_WriteOneByte)(uint16_t ,uint8_t) ;  //ÔÚÈÎÒâµØÖ·Ğ´Ò»¸ö×Ö½Ú
+    uint8_t (*AT24CXX_IsDeviceReady)(void);  //è®¾å¤‡å°±ç»ª
+    uint8_t (*AT24CXX_WriteOneByte)(uint16_t ,uint8_t) ;  //åœ¨ä»»æ„åœ°å€å†™ä¸€ä¸ªå­—èŠ‚
     uint8_t (*AT24CXX_ReadOneByte)(uint16_t ,uint8_t *) ;
     uint8_t (*AT24CXX_ReadBytes)(uint16_t ,uint8_t* ,uint16_t );
     uint8_t (*AT24CXX_WriteInOnePage)(uint16_t ,uint8_t *,uint16_t );
-    void  (*Write_SET_VAL)(uint16_t,uint16_t);  //Ğ´ÉèÖÃµçÑ¹ µçÁ÷
-    void  (*Read_SET_VAL)(void);  //¶ÁÉèÖÃµçÑ¹ µçÁ÷(2026.4.16 RylanTu:ÎªÊ²Ã´Õâ¸öÖ®Ç°Ò²Ã»·¢ÏÖ)
+    void  (*Write_SET_VAL)(uint16_t,uint16_t);  //å†™è®¾ç½®ç”µå‹ ç”µæµ
+    void  (*Read_SET_VAL)(void);  //è¯»è®¾ç½®ç”µå‹ ç”µæµ(2026.4.16 RylanTu:ä¸ºä»€ä¹ˆè¿™ä¸ªä¹‹å‰ä¹Ÿæ²¡å‘ç°)
 
 
 }AT24CXX_t;

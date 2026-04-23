@@ -1,7 +1,7 @@
 #ifndef __System_H__
 #define __System_H__
 #include "MyApplication.h"
-//¶¨Òå½á¹¹ÌåÀàĞÍ
+//å®šä¹‰ç»“æ„ä½“ç±»å‹
 
 typedef struct 
 {

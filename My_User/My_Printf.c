@@ -1,7 +1,7 @@
 #include "MyApplication.h"
 
 /* Private function prototypes -----------------------------------------------*/
-//Ê¹ÓÃPrintfÒ»¶¨Òª¼Ó\n
+//ä½¿ç”¨Printfä¸€å®šè¦åŠ \n
 
 #ifdef __GNUC__
   #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
@@ -9,12 +9,12 @@
   #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)	
 #endif /* __GNUC__ */
 
-  // ÊµÏÖ__io_putchar£¬½«×Ö·ûÍ¨¹ıUSART1·¢ËÍ
+  // å®ç°__io_putcharï¼Œå°†å­—ç¬¦é€šè¿‡USART1å‘é€
 int __io_putchar(int ch)
 {
-    // µÈ´ı´®¿Ú·¢ËÍ»º³åÇøÎª¿Õ£¨HAL¿âº¯Êı£ºµÈ´ı·¢ËÍÍê³É£©
+    // ç­‰å¾…ä¸²å£å‘é€ç¼“å†²åŒºä¸ºç©ºï¼ˆHALåº“å‡½æ•°ï¼šç­‰å¾…å‘é€å®Œæˆï¼‰
     HAL_UART_Transmit(&huart1, (uint8_t*)&ch, 1, HAL_MAX_DELAY);
-    return ch;  // ·µ»Ø×Ö·û£¬Âú×ãº¯Êı·µ»ØÖµÒªÇó
+    return ch;  // è¿”å›å­—ç¬¦ï¼Œæ»¡è¶³å‡½æ•°è¿”å›å€¼è¦æ±‚
 }
 //PUTCHAR_PROTOTYPE
 //{

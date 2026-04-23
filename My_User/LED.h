@@ -4,14 +4,14 @@
 #include "MyApplication.h"
 
 
-//¶¨Òå½á¹¹ÌåÀàÐÍ
+//å®šä¹‰ç»“æž„ä½“ç±»åž‹
 
 typedef struct 
 {
     /* data */
-    void (*RUN_LED_ON)(void);     //´ò¿ªLED
-    void (*RUN_LED_OFF)(void);    //¹Ø±ÕLED
-    void (*RUN_LED_Flip)(void);   //·­×ªLED
+    void (*RUN_LED_ON)(void);     //æ‰“å¼€LED
+    void (*RUN_LED_OFF)(void);    //å…³é—­LED
+    void (*RUN_LED_Flip)(void);   //ç¿»è½¬LED
 } LED_t ;
 
 

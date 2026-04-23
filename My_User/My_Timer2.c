@@ -6,7 +6,7 @@
 /* Private variables----------------------------------------------------------*/
 
 /* Private function prototypes------------------------------------------------*/      
-static void Timer2_Start_IT(void);  //¶¨Ê±Æ÷2ÒÔÖĞ¶ÏÄ£Ê½Æô¶¯
+static void Timer2_Start_IT(void);  //å®šæ—¶å™¨2ä»¥ä¸­æ–­æ¨¡å¼å¯åŠ¨
 	
 /* Public variables-----------------------------------------------------------*/
 My_Timer2_t  My_Timer2 = 
@@ -18,13 +18,13 @@ My_Timer2_t  My_Timer2 =
 
 /*
 	* @name   Timer2_Start_IT
-	* @brief  ¶¨Ê±Æ÷2ÒÔÖĞ¶ÏÄ£Ê½Æô¶¯
+	* @brief  å®šæ—¶å™¨2ä»¥ä¸­æ–­æ¨¡å¼å¯åŠ¨
 	* @param  None
 	* @retval None      
 */
 static void Timer2_Start_IT(void)
 {
-	HAL_TIM_Base_Start_IT(&htim2); //Æô¶¯¶¨Ê±Æ÷2
+	HAL_TIM_Base_Start_IT(&htim2); //å¯åŠ¨å®šæ—¶å™¨2
 }
 /********************************************************
   End Of File

@@ -5,29 +5,29 @@
 
 typedef struct  
 {
-uint8_t Show_Once_Flag;                 //ÏÔÊ¾Ò»´Î±êÖ¾Î»
-uint8_t DeivceState;                    //ÏÔÊ¾Éè±¸ÔÚÏß±êÖ¾ 
-void (*DisplayShow_Once)(void);         //Ö»ÏÔÊ¾Ò»´ÎÄÚÈİ
-void (*DisplayShow_Device)(void);       //ÏÔÊ¾Éè±¸ÔÚÏß×´Ì¬
-void (*DisplayShow_Setval)(void);       //ÏÔÊ¾ÉèÖÃÖµ
-void (*DisplayShow_Outval)(void);       //ÏÔÊ¾Êä³öÖµ
-void (*DisplayShow_Cursor)(void);       //ÏÔÊ¾µ÷½Ú¹â±ê
+uint8_t Show_Once_Flag;                 //æ˜¾ç¤ºä¸€æ¬¡æ ‡å¿—ä½
+uint8_t DeivceState;                    //æ˜¾ç¤ºè®¾å¤‡åœ¨çº¿æ ‡å¿— 
+void (*DisplayShow_Once)(void);         //åªæ˜¾ç¤ºä¸€æ¬¡å†…å®¹
+void (*DisplayShow_Device)(void);       //æ˜¾ç¤ºè®¾å¤‡åœ¨çº¿çŠ¶æ€
+void (*DisplayShow_Setval)(void);       //æ˜¾ç¤ºè®¾ç½®å€¼
+void (*DisplayShow_Outval)(void);       //æ˜¾ç¤ºè¾“å‡ºå€¼
+void (*DisplayShow_Cursor)(void);       //æ˜¾ç¤ºè°ƒèŠ‚å…‰æ ‡
 }Display_Type;
 
 
-//×´Ì¬
+//çŠ¶æ€
 typedef enum
 {
- Offline_State  =   (uint8_t)0,   //ÀëÏß×´Ì¬
- Online_State   =   (uint8_t)1,   //ÔÚÏß×´Ì¬
+ Offline_State  =   (uint8_t)0,   //ç¦»çº¿çŠ¶æ€
+ Online_State   =   (uint8_t)1,   //åœ¨çº¿çŠ¶æ€
  
-}Device_State_t;   //Éè±¸×´Ì¬
+}Device_State_t;   //è®¾å¤‡çŠ¶æ€
 
 
 
-extern Display_Type	Display;  // ÏÔÊ¾
+extern Display_Type	Display;  // æ˜¾ç¤º
 
 
-void My_DisplayTask(void);   //ÏÔÊ¾ÏµÍ³
+void My_DisplayTask(void);   //æ˜¾ç¤ºç³»ç»Ÿ
 
 #endif /* __Display__ */

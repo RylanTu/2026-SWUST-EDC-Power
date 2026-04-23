@@ -18,19 +18,19 @@ System_t System =
 
 /*private function prototypes -----------------------------------------------*/
 //static void Disp_SHT30(void);
-//static void TFT_Show(void);               //TFTÏÔÊ¾£¨´ıÊµÏÖ£©
+//static void TFT_Show(void);               //TFTæ˜¾ç¤ºï¼ˆå¾…å®ç°ï¼‰
 
 /*
 * @name    Run
-* @brief   ÏµÍ³ÔËĞĞ
+* @brief   ç³»ç»Ÿè¿è¡Œ
 * @param   None
 * @retval  None
 */
 static void My_Run()
 {  
     LED.RUN_LED_Flip();
-    Function_SET.Check_Protect(); //±£»¤¼ì²é
-    My_DisplayTask(); //ÏÔÊ¾
+    Function_SET.Check_Protect(); //ä¿æŠ¤æ£€æŸ¥
+    My_DisplayTask(); //æ˜¾ç¤º
     printf("MyADC.Ni:%02f\r\n\r\n",MyADC.Ni);
     //printf("MyADC.Vo:%02f\r\n\r\n",MyADC.Vo); 
     //printf("MyADC.Io:%02f\r\n\r\n",MyADC.Io); 
@@ -47,7 +47,7 @@ static void My_Run()
 
 /*
 * @name    Erro_Handler
-* @brief   ÏµÍ³³ö´í
+* @brief   ç³»ç»Ÿå‡ºé”™
 * @param   None
 * @retval  None
 */
@@ -59,7 +59,7 @@ static void My_Error_Handler()
 
 /*
 * @name    Assert_Failed
-* @brief   ²ÎÊı³ö´í
+* @brief   å‚æ•°å‡ºé”™
 * @param   None
 * @retval  None
 */

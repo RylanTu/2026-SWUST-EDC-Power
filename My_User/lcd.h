@@ -1,10 +1,10 @@
 /*=============================================================================
- * ÎÄ¼þ: lcd.h
- * ËµÃ÷: ST7735S TFT-LCD£¨1.8´ç 128¡Á160£©HAL¿âÇý¶¯Í·ÎÄ¼þ
- * Ð¾Æ¬: STM32F103C8T6
- * ½Ó¿Ú: Ó²¼þSPI2 + GPIO¿ØÖÆÏß£¨RES/DC/CS/BLK£¬Òý½ÅÃûÓÉCubeMXÉú³É£©
- * ×¢Òâ: ±¾ÎÄ¼þÌæ´úÔ­ TFT_240.h£¬¶ÔÍâ±©Â¶ LCD_t ½á¹¹Ìå½Ó¿Ú£¨È«¾ÖÊµÀý LCD£©£¬
- *       Display.c µÈÉÏ²ã´úÂëÎÞÐèÐÞ¸Ä¡£
+ * æ–‡ä»¶: lcd.h
+ * è¯´æ˜Ž: ST7735S TFT-LCDï¼ˆ1.8å¯¸ 128Ã—160ï¼‰HALåº“é©±åŠ¨å¤´æ–‡ä»¶
+ * èŠ¯ç‰‡: STM32F103C8T6
+ * æŽ¥å£: ç¡¬ä»¶SPI2 + GPIOæŽ§åˆ¶çº¿ï¼ˆRES/DC/CS/BLKï¼Œå¼•è„šåç”±CubeMXç”Ÿæˆï¼‰
+ * æ³¨æ„: æœ¬æ–‡ä»¶æ›¿ä»£åŽŸ TFT_240.hï¼Œå¯¹å¤–æš´éœ² LCD_t ç»“æž„ä½“æŽ¥å£ï¼ˆå…¨å±€å®žä¾‹ LCDï¼‰ï¼Œ
+ *       Display.c ç­‰ä¸Šå±‚ä»£ç æ— éœ€ä¿®æ”¹ã€‚
  *=============================================================================*/
 #ifndef __LCD_HAL_H__
 #define __LCD_HAL_H__
@@ -12,89 +12,89 @@
 #include "MyApplication.h"
 
 /*---------------------------------------------------------------------------
- * ÏÔÊ¾·½ÏòÅäÖÃ
- *   0: ÊúÆÁ£¨W=128, H=160£©£¬ÕýÏòÉ¨Ãè
- *   1: ÊúÆÁ£¨W=128, H=160£©£¬·­×ªÉ¨Ãè
- *   2: ºáÆÁ£¨W=160, H=128£©£¬ÄæÊ±Õë90¡ã  ¡û µ±Ç°Ê¹ÓÃ
- *   3: ºáÆÁ£¨W=160, H=128£©£¬Ë³Ê±Õë90¡ã
+ * æ˜¾ç¤ºæ–¹å‘é…ç½®
+ *   0: ç«–å±ï¼ˆW=128, H=160ï¼‰ï¼Œæ­£å‘æ‰«æ
+ *   1: ç«–å±ï¼ˆW=128, H=160ï¼‰ï¼Œç¿»è½¬æ‰«æ
+ *   2: æ¨ªå±ï¼ˆW=160, H=128ï¼‰ï¼Œé€†æ—¶é’ˆ90Â°  â† å½“å‰ä½¿ç”¨
+ *   3: æ¨ªå±ï¼ˆW=160, H=128ï¼‰ï¼Œé¡ºæ—¶é’ˆ90Â°
  *---------------------------------------------------------------------------*/
 #define USE_HORIZONTAL  2
 
 #if USE_HORIZONTAL == 0 || USE_HORIZONTAL == 1
-#define LCD_W  128   /* ÆÁÄ»ÏñËØ¿í¶È */
-#define LCD_H  160   /* ÆÁÄ»ÏñËØ¸ß¶È */
+#define LCD_W  128   /* å±å¹•åƒç´ å®½åº¦ */
+#define LCD_H  160   /* å±å¹•åƒç´ é«˜åº¦ */
 #else
 #define LCD_W  160
 #define LCD_H  128
 #endif
 
 /*---------------------------------------------------------------------------
- * HAL GPIO ¿ØÖÆºê
- * Òý½Å±êºÅÓÉ STM32CubeMX ×Ô¶¯Éú³É²¢µ¼³öÖÁ gpio.h¡£
- * ÈôÒý½ÅÃû³Æ·¢Éú±ä¸ü£¬Ö»ÐèÔÚ CubeMX ÖÐÖØÐÂÅäÖÃ£¬ÎÞÐèÐÞ¸Ä´Ë´¦¡£
+ * HAL GPIO æŽ§åˆ¶å®
+ * å¼•è„šæ ‡å·ç”± STM32CubeMX è‡ªåŠ¨ç”Ÿæˆå¹¶å¯¼å‡ºè‡³ gpio.hã€‚
+ * è‹¥å¼•è„šåç§°å‘ç”Ÿå˜æ›´ï¼Œåªéœ€åœ¨ CubeMX ä¸­é‡æ–°é…ç½®ï¼Œæ— éœ€ä¿®æ”¹æ­¤å¤„ã€‚
  *---------------------------------------------------------------------------*/
-#define LCD_RES_Clr  HAL_GPIO_WritePin(TFT_RES_GPIO_Port, TFT_RES_Pin, GPIO_PIN_RESET)  /* ¸´Î»À­µÍ */
-#define LCD_RES_Set  HAL_GPIO_WritePin(TFT_RES_GPIO_Port, TFT_RES_Pin, GPIO_PIN_SET)    /* ¸´Î»ÊÍ·Å */
+#define LCD_RES_Clr  HAL_GPIO_WritePin(TFT_RES_GPIO_Port, TFT_RES_Pin, GPIO_PIN_RESET)  /* å¤ä½æ‹‰ä½Ž */
+#define LCD_RES_Set  HAL_GPIO_WritePin(TFT_RES_GPIO_Port, TFT_RES_Pin, GPIO_PIN_SET)    /* å¤ä½é‡Šæ”¾ */
 
-#define LCD_DC_Clr   HAL_GPIO_WritePin(TFT_DC_GPIO_Port,  TFT_DC_Pin,  GPIO_PIN_RESET)  /* DC=0£ºÃüÁî */
-#define LCD_DC_Set   HAL_GPIO_WritePin(TFT_DC_GPIO_Port,  TFT_DC_Pin,  GPIO_PIN_SET)    /* DC=1£ºÊý¾Ý */
+#define LCD_DC_Clr   HAL_GPIO_WritePin(TFT_DC_GPIO_Port,  TFT_DC_Pin,  GPIO_PIN_RESET)  /* DC=0ï¼šå‘½ä»¤ */
+#define LCD_DC_Set   HAL_GPIO_WritePin(TFT_DC_GPIO_Port,  TFT_DC_Pin,  GPIO_PIN_SET)    /* DC=1ï¼šæ•°æ® */
 
-#define LCD_CS_Clr   HAL_GPIO_WritePin(TFT_CS_GPIO_Port,  TFT_CS_Pin,  GPIO_PIN_RESET)  /* Æ¬Ñ¡Ê¹ÄÜ */
-#define LCD_CS_Set   HAL_GPIO_WritePin(TFT_CS_GPIO_Port,  TFT_CS_Pin,  GPIO_PIN_SET)    /* Æ¬Ñ¡ÊÍ·Å */
+#define LCD_CS_Clr   HAL_GPIO_WritePin(TFT_CS_GPIO_Port,  TFT_CS_Pin,  GPIO_PIN_RESET)  /* ç‰‡é€‰ä½¿èƒ½ */
+#define LCD_CS_Set   HAL_GPIO_WritePin(TFT_CS_GPIO_Port,  TFT_CS_Pin,  GPIO_PIN_SET)    /* ç‰‡é€‰é‡Šæ”¾ */
 
-/* ±³¹â¼«ÐÔ£º¸ß=¿ª£¬µÍ=¹Ø£¨ÓëÔ­±ê×¼¿â LCD_BLK_Set ´ò¿ª±³¹â±£³ÖÒ»ÖÂ£© */
-#define LCD_BLK_OFF  HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_RESET)  /* ¹Ø±Õ±³¹â */
-#define LCD_BLK_ON   HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_SET)    /* ¿ªÆô±³¹â */
+/* èƒŒå…‰æžæ€§ï¼šé«˜=å¼€ï¼Œä½Ž=å…³ï¼ˆä¸ŽåŽŸæ ‡å‡†åº“ LCD_BLK_Set æ‰“å¼€èƒŒå…‰ä¿æŒä¸€è‡´ï¼‰ */
+#define LCD_BLK_OFF  HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_RESET)  /* å…³é—­èƒŒå…‰ */
+#define LCD_BLK_ON   HAL_GPIO_WritePin(TFT_BLK_GPIO_Port, TFT_BLK_Pin, GPIO_PIN_SET)    /* å¼€å¯èƒŒå…‰ */
 
 /*---------------------------------------------------------------------------
- * ÑÕÉ«¶¨Òå£¨RGB565 ¸ñÊ½£¬16Î»£©
+ * é¢œè‰²å®šä¹‰ï¼ˆRGB565 æ ¼å¼ï¼Œ16ä½ï¼‰
  *---------------------------------------------------------------------------*/
 typedef enum
 {
-    Color_WHITE      = 0xFFFF,   /* °×É«   */
-    Color_BLACK      = 0x0000,   /* ºÚÉ«   */
-    Color_BLUE       = 0x001F,   /* À¶É«   */
-    Color_BRED       = 0xF81F,   /* ×ÏÉ«   */
-    Color_GBLUE      = 0x07FF,   /* ÇàÉ«   */
-    Color_RED        = 0xF800,   /* ºìÉ«   */
-    Color_MAGENTA    = 0xF81F,   /* Æ·ºì   */
-    Color_GREEN      = 0x07E0,   /* ÂÌÉ«   */
-    Color_CYAN       = 0x7FFF,   /* ÇàÀ¶É« */
-    Color_YELLOW     = 0xFFE0,   /* »ÆÉ«   */
-    Color_BROWN      = 0xBC40,   /* ×ØÉ«   */
-    Color_BRRED      = 0xFC07,   /* ×ØºìÉ« */
-    Color_GRAY       = 0x8430,   /* »ÒÉ«   */
-    Color_DARKBLUE   = 0x01CF,   /* ÉîÀ¶É« */
-    Color_LIGHTBLUE  = 0x7D7C,   /* Ç³À¶É« */
-    Color_GRAYBLUE   = 0x5458,   /* »ÒÀ¶É« */
-    Color_LIGHTGREEN = 0x841F,   /* Ç³ÂÌÉ« */
-    Color_LGRAY      = 0xC618,   /* Ç³»ÒÉ« */
-    Color_LGRAYBLUE  = 0xA651,   /* Ç³»ÒÀ¶ */
-    Color_LBBLUE     = 0x2B12,   /* Ç³×ØÀ¶ */
+    Color_WHITE      = 0xFFFF,   /* ç™½è‰²   */
+    Color_BLACK      = 0x0000,   /* é»‘è‰²   */
+    Color_BLUE       = 0x001F,   /* è“è‰²   */
+    Color_BRED       = 0xF81F,   /* ç´«è‰²   */
+    Color_GBLUE      = 0x07FF,   /* é’è‰²   */
+    Color_RED        = 0xF800,   /* çº¢è‰²   */
+    Color_MAGENTA    = 0xF81F,   /* å“çº¢   */
+    Color_GREEN      = 0x07E0,   /* ç»¿è‰²   */
+    Color_CYAN       = 0x7FFF,   /* é’è“è‰² */
+    Color_YELLOW     = 0xFFE0,   /* é»„è‰²   */
+    Color_BROWN      = 0xBC40,   /* æ£•è‰²   */
+    Color_BRRED      = 0xFC07,   /* æ£•çº¢è‰² */
+    Color_GRAY       = 0x8430,   /* ç°è‰²   */
+    Color_DARKBLUE   = 0x01CF,   /* æ·±è“è‰² */
+    Color_LIGHTBLUE  = 0x7D7C,   /* æµ…è“è‰² */
+    Color_GRAYBLUE   = 0x5458,   /* ç°è“è‰² */
+    Color_LIGHTGREEN = 0x841F,   /* æµ…ç»¿è‰² */
+    Color_LGRAY      = 0xC618,   /* æµ…ç°è‰² */
+    Color_LGRAYBLUE  = 0xA651,   /* æµ…ç°è“ */
+    Color_LBBLUE     = 0x2B12,   /* æµ…æ£•è“ */
 } LCD_Color_t;
 
 /*---------------------------------------------------------------------------
- * ASCII ×ÖÌå´óÐ¡Ã¶¾Ù£¨µ¥Î»£ºÏñËØ¸ß¶È£¬¿í¶È = ¸ß¶È/2£©
+ * ASCII å­—ä½“å¤§å°æžšä¸¾ï¼ˆå•ä½ï¼šåƒç´ é«˜åº¦ï¼Œå®½åº¦ = é«˜åº¦/2ï¼‰
  *---------------------------------------------------------------------------*/
 typedef enum
 {
-    ASCII_font_12 = 12,   /* 6¡Á12  ×ÖÌå */
-    ASCII_font_16 = 16,   /* 8¡Á16  ×ÖÌå */
-    ASCII_font_24 = 24,   /* 12¡Á24 ×ÖÌå */
-    ASCII_font_32 = 32,   /* 16¡Á32 ×ÖÌå */
+    ASCII_font_12 = 12,   /* 6Ã—12  å­—ä½“ */
+    ASCII_font_16 = 16,   /* 8Ã—16  å­—ä½“ */
+    ASCII_font_24 = 24,   /* 12Ã—24 å­—ä½“ */
+    ASCII_font_32 = 32,   /* 16Ã—32 å­—ä½“ */
 } ASCII_font_t;
 
 /*---------------------------------------------------------------------------
- * ×ÖÌåµþ¼ÓÄ£Ê½
+ * å­—ä½“å åŠ æ¨¡å¼
  *---------------------------------------------------------------------------*/
 typedef enum
 {
-    font_overlay_OFF = 0,   /* ·Çµþ¼Ó£º×Ö·ûÇøÓòÍêÈ«¸²¸Ç£¨º¬±³¾°É«£© */
-    font_overlay_ON  = 1,   /* µþ¼Ó  £º½ö»æÖÆÇ°¾°ÏñËØ£¬±³¾°±£³ÖÔ­Ñù */
+    font_overlay_OFF = 0,   /* éžå åŠ ï¼šå­—ç¬¦åŒºåŸŸå®Œå…¨è¦†ç›–ï¼ˆå«èƒŒæ™¯è‰²ï¼‰ */
+    font_overlay_ON  = 1,   /* å åŠ   ï¼šä»…ç»˜åˆ¶å‰æ™¯åƒç´ ï¼ŒèƒŒæ™¯ä¿æŒåŽŸæ · */
 } font_overlay_t;
 
 /*---------------------------------------------------------------------------
- * ÖÐÎÄ×ÖÌå´óÐ¡Ã¶¾Ù£¨Õý·½ÐÎ×ÖÄ££¬µ¥Î»£ºÏñËØ£©
+ * ä¸­æ–‡å­—ä½“å¤§å°æžšä¸¾ï¼ˆæ­£æ–¹å½¢å­—æ¨¡ï¼Œå•ä½ï¼šåƒç´ ï¼‰
  *---------------------------------------------------------------------------*/
 typedef enum
 {
@@ -105,19 +105,19 @@ typedef enum
 } CHN_font_t;
 
 /*---------------------------------------------------------------------------
- * LCD ¹¦ÄÜ½á¹¹Ìå£¨º¯ÊýÖ¸Õë¼¯ºÏ£©
+ * LCD åŠŸèƒ½ç»“æž„ä½“ï¼ˆå‡½æ•°æŒ‡é’ˆé›†åˆï¼‰
  *
- * ²ÎÊýÓïÒåËµÃ÷£º
+ * å‚æ•°è¯­ä¹‰è¯´æ˜Žï¼š
  *   FillColor(x1, y1, x2, y2, color)
- *       ¡ª Ìî³ä¾ØÐÎ£¬x2/y2 Îª²»º¬±ß½ç£¨°ë¿ªÇø¼ä [x1,x2) ¡Á [y1,y2)£©
+ *       â€” å¡«å……çŸ©å½¢ï¼Œx2/y2 ä¸ºä¸å«è¾¹ç•Œï¼ˆåŠå¼€åŒºé—´ [x1,x2) Ã— [y1,y2)ï¼‰
  *   DrawRectangle(x1, y1, x2, y2, color)
- *       ¡ª »­¾ØÐÎ±ß¿ò£¬x2/y2 Îª°üº¬±ß½ç£¨±ÕÇø¼ä [x1,x2]¡Á[y1,y2]£©
+ *       â€” ç”»çŸ©å½¢è¾¹æ¡†ï¼Œx2/y2 ä¸ºåŒ…å«è¾¹ç•Œï¼ˆé—­åŒºé—´ [x1,x2]Ã—[y1,y2]ï¼‰
  *   DrawLine(x1, y1, x2, y2, color)
- *       ¡ª »­Ö±Ïß£¬Æðµã/ÖÕµã¾ùÎª°üº¬×ø±ê
+ *       â€” ç”»ç›´çº¿ï¼Œèµ·ç‚¹/ç»ˆç‚¹å‡ä¸ºåŒ…å«åæ ‡
  *   ShowChar(x, y, ch, fc, bc, font, mode)
  *   ShowString(x, y, str, fc, bc, font, mode)
- *   ShowChinese(x, y, str, fc, bc, font, mode)        ¡ª µ¥¸öºº×Ö£¨2×Ö½ÚGBK£©
- *   ShowChineseString(x, y, str, fc, bc, font, mode)  ¡ª ºº×Ö´®
+ *   ShowChinese(x, y, str, fc, bc, font, mode)        â€” å•ä¸ªæ±‰å­—ï¼ˆ2å­—èŠ‚GBKï¼‰
+ *   ShowChineseString(x, y, str, fc, bc, font, mode)  â€” æ±‰å­—ä¸²
  *   ShowCHNandENGString(x, y, str, fc, bc, chn_font, asc_font, mode)
  *---------------------------------------------------------------------------*/
 typedef struct
@@ -141,7 +141,7 @@ typedef struct
                                 font_overlay_t mode);
 } LCD_t;
 
-extern LCD_t LCD;   /* È«¾Ö LCD ²Ù×÷¶ÔÏó£¬ÔÚ lcd.c ÖÐ¶¨Òå */
+extern LCD_t LCD;   /* å…¨å±€ LCD æ“ä½œå¯¹è±¡ï¼Œåœ¨ lcd.c ä¸­å®šä¹‰ */
 
 #endif /* __LCD_HAL_H__ */
 

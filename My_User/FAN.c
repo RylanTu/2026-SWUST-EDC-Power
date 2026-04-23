@@ -5,7 +5,7 @@
 
 /*private variables----------------------------------------------*/
 
-static void FAN_ON(void);   //¾²Ì¬º¯Êı
+static void FAN_ON(void);   //é™æ€å‡½æ•°
 static void FAN_OFF(void);
 static void FAN_Flip(void);
 
@@ -23,7 +23,7 @@ FAN_t FAN =
 
 /*
 * @name    FAN_ON
-* @brief   FAN´ò¿ª
+* @brief   FANæ‰“å¼€
 * @param   None
 * @retval  None
 */
@@ -35,7 +35,7 @@ static void FAN_ON(void)
 
 /*
 * @name    FAN_OFF
-* @brief   FAN¹Ø±Õ
+* @brief   FANå…³é—­
 * @param   None
 * @retval  None
 */
@@ -48,7 +48,7 @@ static void FAN_OFF(void)
 
 /*
 * @name    FAN_Flip
-* @brief   FANÈ¡·´
+* @brief   FANå–å
 * @param   None
 * @retval  None
 */

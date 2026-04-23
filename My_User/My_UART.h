@@ -3,26 +3,26 @@
 
 #include "MyApplication.h"
 
-//¶¨ÒåÃ¶¾ÙÀàĞÍ
+//å®šä¹‰æšä¸¾ç±»å‹
 typedef enum
 {	
-	TTL       = (uint8_t)0,    //TTLÄ£Ê½
-	RS_485	  = (uint8_t)1,    //RS485Ä£Ê½
-	RS_232	  = (uint8_t)2,    //RS232Ä£Ê½
+	TTL       = (uint8_t)0,    //TTLæ¨¡å¼
+	RS_485	  = (uint8_t)1,    //RS485æ¨¡å¼
+	RS_232	  = (uint8_t)2,    //RS232æ¨¡å¼
 }Interface_Type_t;
 /* extern variables-----------------------------------------------------------*/
 
 typedef struct 
 {
-	uint8_t* pucSend_Buffer;           //·¢ËÍ»º´æÖ¸Õë
-	uint8_t* pucRec_Buffer;            //½ÓÊÕ»º´æÖ¸Õë
+	uint8_t* pucSend_Buffer;           //å‘é€ç¼“å­˜æŒ‡é’ˆ
+	uint8_t* pucRec_Buffer;            //æ¥æ”¶ç¼“å­˜æŒ‡é’ˆ
 	
-	void (*SendArray)(uint8_t*,uint16_t);  //´®¿Ú·¢ËÍÊı×é
-	void (*SendString)(uint8_t*);          //´®¿Ú·¢ËÍ×Ö·û´®
+	void (*SendArray)(uint8_t*,uint16_t);  //ä¸²å£å‘é€æ•°ç»„
+	void (*SendString)(uint8_t*);          //ä¸²å£å‘é€å­—ç¬¦ä¸²
 
-	uint8_t	Interface_Type;            //½Ó¿ÚÀàĞÍ
-	void (*RS485_Set_SendMode)(void);  //RS-485½Ó¿ÚÉèÖÃÎª·¢ËÍÄ£Ê½
-	void (*RS485_Set_RecMode)(void);   //RS-485½Ó¿ÚÉèÖÃÎª½ÓÊÕÄ£Ê½
+	uint8_t	Interface_Type;            //æ¥å£ç±»å‹
+	void (*RS485_Set_SendMode)(void);  //RS-485æ¥å£è®¾ç½®ä¸ºå‘é€æ¨¡å¼
+	void (*RS485_Set_RecMode)(void);   //RS-485æ¥å£è®¾ç½®ä¸ºæ¥æ”¶æ¨¡å¼
 } My_UART_t ;
 /* extern variables-----------------------------------------------------------*/
 

@@ -2,9 +2,9 @@
 #define __PUBLIC_H_
 #include "MyApplication.h"
 /* Public define-------------------------------------------------------------*/
-#define SoftWare_Version 	(float)1.1  //°æ±¾ºÅ
+#define SoftWare_Version 	(float)1.1  //ç‰ˆæœ¬å·
 
-//¶¨ÒåÃ¶¾ÙÀàĞÍ -> TRUE/FALSE
+//å®šä¹‰æšä¸¾ç±»å‹ -> TRUE/FALSE
 typedef enum 
 {
   FALSE = 0U, 
@@ -17,10 +17,10 @@ typedef enum
   PASSED = !FAILED
 } TestStatus_t;
 
-//¶¨Òå½á¹¹ÌåÀàĞÍ
+//å®šä¹‰ç»“æ„ä½“ç±»å‹
 typedef struct
 {
-	void (*Memory_Clr)(uint8_t*,uint16_t); //ÄÚ´æÇå³ıº¯Êı
+	void (*Memory_Clr)(uint8_t*,uint16_t); //å†…å­˜æ¸…é™¤å‡½æ•°
 } Public_t;
 
 /* extern variables-----------------------------------------------------------*/
@@ -29,9 +29,9 @@ extern Public_t Public;
 
 /* extern variables-----------------------------------------------------------*/
 
-/*******Ô¤±àÒëºê¶¨Òå*******/
-//#define Monitor_Run_Code   //´úÂëÔËĞĞ¼àÊÓÆ÷
-//#define Hardware_TEST      //Ó²¼ş²âÊÔ
+/*******é¢„ç¼–è¯‘å®å®šä¹‰*******/
+//#define Monitor_Run_Code   //ä»£ç è¿è¡Œç›‘è§†å™¨
+//#define Hardware_TEST      //ç¡¬ä»¶æµ‹è¯•
 
 #endif
 /********************************************************

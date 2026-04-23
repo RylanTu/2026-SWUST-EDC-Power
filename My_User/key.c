@@ -46,7 +46,7 @@ void Key_Clear(void)
 	}
 }
 
-//放到定时器中断中进行扫描
+//鏀惧埌瀹氭椂鍣ㄤ腑鏂腑杩涜鎵弿
 void Key_Tick(void)
 {
 	static uint8_t Count;

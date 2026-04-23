@@ -16,14 +16,14 @@ typedef struct
 }KEY_EC11_t;
 
 
-extern KEY_t	KEY_ON;    //¿ª¹Ø¼ü
-extern KEY_t	KEY_OK;    //È·ÈÏ¼ü
-extern KEY_t	KEY_SET;   //ÉèÖÃ¼ü
-extern KEY_t	KEY_UP;    //ÉÏ¼ü
-extern KEY_t	KEY_DOWN;   //ÏÂ¼ü
-extern KEY_EC11_t	KEY_EC11;   //±àÂëÆ÷
+extern KEY_t	KEY_ON;    //å¼€å…³é”®
+extern KEY_t	KEY_OK;    //ç¡®è®¤é”®
+extern KEY_t	KEY_SET;   //è®¾ç½®é”®
+extern KEY_t	KEY_UP;    //ä¸Šé”®
+extern KEY_t	KEY_DOWN;   //ä¸‹é”®
+extern KEY_EC11_t	KEY_EC11;   //ç¼–ç å™¨
 
-void KEY_ALL_Detect(void);  //°´¼ü¼ì²âÏµÍ³
+void KEY_ALL_Detect(void);  //æŒ‰é”®æ£€æµ‹ç³»ç»Ÿ
 #endif /* __My_KEY__ */
 
 
