@@ -1,3 +1,7 @@
+/* TFT_240.h - 已弃用，由 lcd.h (HAL库版本) 替代，保留此文件仅供参考。
+ * 若需恢复，去掉下方 #if 0 / #endif 注释块即可。
+ */
+#if 0
 #ifndef __TFT_240_H
 #define __TFT_240_H		
 
@@ -114,3 +118,5 @@ extern TFT_LCD_t  TFT_LCD;
 
 #endif
 
+
+#endif /* TFT_240.h 弃用结束 */

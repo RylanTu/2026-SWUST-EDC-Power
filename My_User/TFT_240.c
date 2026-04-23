@@ -1,3 +1,7 @@
+/* TFT_240.c - 已弃用，由 lcd.c (HAL库版本) 替代，保留此文件仅供参考。
+ * 若需恢复，去掉下方 #if 0 / #endif 注释块即可。
+ */
+#if 0
 #include "TFT_240.h"
 #include "Font_ASCII.h"
 #include "Font_CHN.h"
@@ -742,3 +746,4 @@ static void TFT_ShowCHNandENGstring(uint16_t xstar, uint16_t ystar, const char *
 
 #if 0
 #endif
+#endif /* TFT_240.c 弃用结束 */

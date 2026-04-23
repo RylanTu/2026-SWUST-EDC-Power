@@ -20,7 +20,7 @@
 #include "LED.h"
 #include "FAN.h"
 #include "My_UART.h"
-#include "TFT_240.h"
+#include "lcd.h"
 #include "Display.h"
 #include "My_Timer2.h"
 #include "AT24CXX.h"
