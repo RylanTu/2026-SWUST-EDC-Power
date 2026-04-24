@@ -2,9 +2,9 @@
 #include "FunctionSet.h"
 
 /* Private define-------------------------------------------------------------*/
-#define PROTECT_VOLT   12.5f   //过压保护阈值(V)
-#define PROTECT_CURR    1.2f   //过流保护阈值(A)
-#define PROTECT_TEMP   70.0f   //过温保护阈值(℃)
+#define PROTECT_VOLT   20.0f   //过压保护阈值(V)
+#define PROTECT_CURR    1.8f   //过流保护阈值(A)
+#define PROTECT_TEMP   60.0f   //过温保护阈值(℃)
 
 /* Private variables----------------------------------------------------------*/
 

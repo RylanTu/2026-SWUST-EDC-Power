@@ -60,7 +60,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)    //定时器2     
           MyADC.ADC_GetNewSample ();       //ADC采集一次        
           if(++My_Timer2.usMCU_Run_Timer>=TIMER2_10mS)  //10mS秒钟 
           {
-               KEY_ALL_Detect();   //按键检测作用
                Function_SET.OUT_VAL_Ctrl(); //输出电压电流调整
                My_Timer2.usMCU_Run_Timer=0;   
           }  

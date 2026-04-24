@@ -29,6 +29,7 @@ System_t System =
 static void My_Run()
 {  
     LED.RUN_LED_Flip();
+    KEY_ALL_Detect(); //按键业务放在主循环，避免中断中执行阻塞操作
     Function_SET.Check_Protect(); //保护检查
     My_DisplayTask(); //显示
     //printf("MyADC.Vo:%02f\r\n\r\n",MyADC.Vo); 
