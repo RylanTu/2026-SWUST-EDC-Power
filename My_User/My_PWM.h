@@ -6,13 +6,13 @@
 
 typedef enum
 {
-	Start_State  	= (uint8_t)1,  //å¼€å§‹
-	Stop_State  	= (uint8_t)0,  //åœæ­¢
+	Start_State  	= (uint8_t)1,  //¿ªÊ¼
+	Stop_State  	= (uint8_t)0,  //Í£Ö¹
 }Status_t;
 
 //PWM
 #define PWM_COUNT_FRE			72000000		
-#define PWM_FREQUENCY			50000	   //å¼€å…³é¢‘ç‡(ä¸TIM1 ARR=1439ä¸€è‡´)
+#define PWM_FREQUENCY			50000	   //¿ª¹ØÆµÂÊ(ÓëTIM1 ARR=1439Ò»ÖÂ)
 #define PWM_PERIOD_VAL	(PWM_COUNT_FRE / PWM_FREQUENCY - 1)
 #define PWM1_PULSE  TIM1->CCR1 
 //#define PWM2_PULSE  TIM1->CCR4 
@@ -29,17 +29,17 @@ typedef enum
 #define PWM_Polarity_channel4  TIM_CCER_CC4P
 typedef struct  
 {
-	uint16_t halfPeriod;  //åŠå‘¨
-	uint16_t period;      //å‘¨æœŸ
-	int16_t limitMin;     //æœ€å°æé™
-	int16_t limitMax;     //æœ€å¤§æé™
-	uint8_t Status;        //åœæ­¢æ ‡å¿—ä½
-    float PWMDuty;         //å æ§æ¯”
-	float  ControlPWM;     //pwmå¢é‡  
-    void (*PWM_Init)(void);   //PWMåˆå§‹åŒ–
-    void (*PWM_Start)(void);  //PWMå¼€å§‹
-    void (*PWM_Stop)(void);   //PWMåœæ­¢
-	void (*PWM_Updata)(uint16_t, uint16_t);   //æ›´æ–°PWM
+	uint16_t halfPeriod;  //°ëÖÜ
+	uint16_t period;      //ÖÜÆÚ
+	int16_t limitMin;     //×îĞ¡¼«ÏŞ
+	int16_t limitMax;     //×î´ó¼«ÏŞ
+	uint8_t Status;        //Í£Ö¹±êÖ¾Î»
+    float PWMDuty;         //Õ¼¿Õ±È
+	float  ControlPWM;     //PWMÔöÁ¿  
+    void (*PWM_Init)(void);   //PWM³õÊ¼»¯
+    void (*PWM_Start)(void);  //PWM¿ªÊ¼
+    void (*PWM_Stop)(void);   //PWMÍ£Ö¹
+	void (*PWM_Updata)(uint16_t, uint16_t);   //¸üĞÂPWM
 }PWMSet_Type;
 
 extern PWMSet_Type	PWMSET;
