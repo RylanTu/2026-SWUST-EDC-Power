@@ -18,7 +18,7 @@
  *   2: 横屏（W=160, H=128），逆时针90°  ← 当前使用
  *   3: 横屏（W=160, H=128），顺时针90°
  *---------------------------------------------------------------------------*/
-#define USE_HORIZONTAL  2
+#define USE_HORIZONTAL  3
 
 #if USE_HORIZONTAL == 0 || USE_HORIZONTAL == 1
 #define LCD_W  128   /* 屏幕像素宽度 */
