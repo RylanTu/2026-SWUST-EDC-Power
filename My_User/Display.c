@@ -48,7 +48,8 @@ static void Display_FormatFixed(char *buf, size_t len, const char *label,
                                 int32_t scaled_val, int32_t scale,
                                 uint8_t frac_digits, char unit);
 static void Display_DrawStatusBadge(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
-                                    uint16_t bg_color, const char *txt, uint16_t txt_x, uint16_t txt_y);
+                                    uint16_t bg_color, uint16_t txt_color,
+                                    const char *txt, uint16_t txt_x, uint16_t txt_y);
 
 static uint8_t ui_blink_phase = 0;
 static uint8_t ui_blink_div = 0;
@@ -72,33 +73,34 @@ static void Relay_State(void)
 static void DisplayShow_Once(void)
 {
   // 仅首次清屏并绘制静态边框，避免显示任务反复整屏重绘。
-  LCD.FillColor(0, 0, LCD_W, LCD_H, Color_BLACK);    /* 全屏清黑（x2/y2为不含边界的终点）*/
-  LCD.DrawRectangle(0, 0, LCD_W - 1U, LCD_H - 1U, Color_WHITE);
+  LCD.FillColor(0, 0, LCD_W, LCD_H, Color_WHITE);    /* 全屏清白（x2/y2为不含边界的终点）*/
+  LCD.DrawRectangle(0, 0, LCD_W - 1U, LCD_H - 1U, Color_BLACK);
 
   // 分区分隔线。
-  LCD.DrawLine(0, UI_Y_HEADER_END, LCD_W - 1U, UI_Y_HEADER_END, Color_WHITE);
-  LCD.DrawLine(0, UI_Y_ROW1_END, LCD_W - 1U, UI_Y_ROW1_END, Color_WHITE);
-  LCD.DrawLine(0, UI_Y_ROW2_END, LCD_W - 1U, UI_Y_ROW2_END, Color_WHITE);
-  LCD.DrawLine(0, UI_Y_INFO_END, LCD_W - 1U, UI_Y_INFO_END, Color_WHITE);
-  LCD.DrawLine(UI_X_SPLIT, UI_Y_ROW1_END, UI_X_SPLIT, UI_Y_ROW2_END, Color_WHITE);
+  LCD.DrawLine(0, UI_Y_HEADER_END, LCD_W - 1U, UI_Y_HEADER_END, Color_BLACK);
+  LCD.DrawLine(0, UI_Y_ROW1_END, LCD_W - 1U, UI_Y_ROW1_END, Color_BLACK);
+  LCD.DrawLine(0, UI_Y_ROW2_END, LCD_W - 1U, UI_Y_ROW2_END, Color_BLACK);
+  LCD.DrawLine(0, UI_Y_INFO_END, LCD_W - 1U, UI_Y_INFO_END, Color_BLACK);
+  LCD.DrawLine(UI_X_SPLIT, UI_Y_ROW1_END, UI_X_SPLIT, UI_Y_ROW2_END, Color_BLACK);
 
   // 顶栏固定文本。
-  LCD.ShowString(4, UI_Y_HEADER_TEXT, "PWR:", Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_OFF);
-  LCD.ShowString(84, UI_Y_HEADER_TEXT, "MODE:", Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(4, UI_Y_HEADER_TEXT, "PWR:", Color_BLACK, Color_WHITE, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(84, UI_Y_HEADER_TEXT, "MODE:", Color_BLACK, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   // 进度条静态边框和标题。
-  LCD.ShowString(4, 106, "BAR", Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_OFF);
-  LCD.DrawRectangle(UI_BAR_X1 - 1U, UI_BAR_Y1 - 1U, UI_BAR_X2 + 1U, UI_BAR_Y2 + 1U, Color_WHITE);
+  LCD.ShowString(4, 106, "BAR", Color_BLACK, Color_WHITE, ASCII_font_16, font_overlay_OFF);
+  LCD.DrawRectangle(UI_BAR_X1 - 1U, UI_BAR_Y1 - 1U, UI_BAR_X2 + 1U, UI_BAR_Y2 + 1U, Color_BLACK);
 
   Display.Show_Once_Flag = FALSE;
 }
 
 static void Display_DrawStatusBadge(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2,
-                                    uint16_t bg_color, const char *txt, uint16_t txt_x, uint16_t txt_y)
+                                    uint16_t bg_color, uint16_t txt_color,
+                                    const char *txt, uint16_t txt_x, uint16_t txt_y)
 {
   LCD.FillColor(x1, y1, x2, y2, (LCD_Color_t)bg_color);
-  LCD.DrawRectangle(x1 - 1U, y1 - 1U, x2, y2, Color_WHITE);
-  LCD.ShowString(txt_x, txt_y, txt, Color_BLACK, (LCD_Color_t)bg_color, ASCII_font_16, font_overlay_OFF);
+  LCD.DrawRectangle(x1 - 1U, y1 - 1U, x2, y2, Color_BLACK);
+  LCD.ShowString(txt_x, txt_y, txt, txt_color, (LCD_Color_t)bg_color, ASCII_font_16, font_overlay_OFF);
 }
 
 static void DisplayShow_Device(void)
@@ -107,23 +109,23 @@ static void DisplayShow_Device(void)
   if(Function_SET.PowrputState == ON_State)
   {
     Display_DrawStatusBadge(UI_PWR_BADGE_X1, UI_PWR_BADGE_Y1, UI_PWR_BADGE_X2, UI_PWR_BADGE_Y2,
-                            Color_GREEN, "ON", 48, UI_Y_HEADER_TEXT);
+                            Color_GREEN, Color_BLACK, "ON", 48, UI_Y_HEADER_TEXT);
   }
   else
   {
     Display_DrawStatusBadge(UI_PWR_BADGE_X1, UI_PWR_BADGE_Y1, UI_PWR_BADGE_X2, UI_PWR_BADGE_Y2,
-                            Color_RED, "OFF", 44, UI_Y_HEADER_TEXT);
+                            Color_RED, Color_WHITE, "OFF", 44, UI_Y_HEADER_TEXT);
   }
 
   if(Function_SET.OutPutState == CV_State)
   {
     Display_DrawStatusBadge(UI_MODE_BADGE_X1, UI_MODE_BADGE_Y1, UI_MODE_BADGE_X2, UI_MODE_BADGE_Y2,
-                            Color_YELLOW, "CV", 132, UI_Y_HEADER_TEXT);
+                            Color_YELLOW, Color_BLACK, "CV", 132, UI_Y_HEADER_TEXT);
   }
   else
   {
     Display_DrawStatusBadge(UI_MODE_BADGE_X1, UI_MODE_BADGE_Y1, UI_MODE_BADGE_X2, UI_MODE_BADGE_Y2,
-                            Color_BLUE, "CC", 132, UI_Y_HEADER_TEXT);
+                            Color_BLUE, Color_WHITE, "CC", 132, UI_Y_HEADER_TEXT);
   }
 }
 
@@ -207,16 +209,16 @@ static void Display_FormatFixed(char *buf, size_t len, const char *label,
 static void DisplayShow_Setval(void)
 {
   char buf[32];
-  uint16_t color_vset = (Function_SET.SetVIState == SET_V_State) ? Color_YELLOW : Color_GRAY;
-  uint16_t color_iset = (Function_SET.SetVIState == SET_I_State) ? Color_CYAN : Color_GRAY;
+  uint16_t color_vset = (Function_SET.SetVIState == SET_V_State) ? Color_DARKBLUE : Color_GRAYBLUE;
+  uint16_t color_iset = (Function_SET.SetVIState == SET_I_State) ? Color_BRRED : Color_GRAYBLUE;
 
   Display_FormatFixed(buf, sizeof(buf), "VSET", (int32_t)Function_SET.Set_VOUT,
                       100, 2, 0);
-  LCD.ShowString(4, UI_Y_ROW1_TEXT, buf, color_vset, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(4, UI_Y_ROW1_TEXT, buf, color_vset, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   Display_FormatFixed(buf, sizeof(buf), "ISET", (int32_t)Function_SET.Set_IOUT,
                       1000, 3, 0);
-  LCD.ShowString(4, UI_Y_ROW2_TEXT, buf, color_iset, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(4, UI_Y_ROW2_TEXT, buf, color_iset, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 }
 
 static void DisplayShow_Outval(void)
@@ -254,9 +256,9 @@ static void DisplayShow_Outval(void)
 
   alarm_oc = (MyADC.Io > DISP_WARN_CURR) ? 1U : 0U;
   alarm_ot = (temperature > DISP_WARN_TEMP) ? 1U : 0U;
-  io_color = alarm_oc ? (ui_blink_phase ? Color_RED : Color_BLACK) : Color_WHITE;
-  temp_color = alarm_ot ? (ui_blink_phase ? Color_RED : Color_BLACK) : Color_WHITE;
-  vo_color = (MyADC.Vo > DISP_WARN_VOLT) ? Color_RED : Color_WHITE;
+  io_color = alarm_oc ? (ui_blink_phase ? Color_RED : Color_BLACK) : Color_BLACK;
+  temp_color = alarm_ot ? (ui_blink_phase ? Color_RED : Color_BLACK) : Color_BLACK;
+  vo_color = (MyADC.Vo > DISP_WARN_VOLT) ? Color_RED : Color_BLACK;
 
   vo_100 = Display_RoundToScale(MyADC.Vo, 100);
   io_1000 = Display_RoundToScale(MyADC.Io, 1000);
@@ -280,17 +282,17 @@ static void DisplayShow_Outval(void)
 
   // 右侧实测值与左侧设定值对齐显示。
   Display_FormatFixed(buf, sizeof(buf), "VOUT", vo_100, 100, 2, 0);
-  LCD.ShowString(84, UI_Y_ROW1_TEXT, buf, vo_color, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(84, UI_Y_ROW1_TEXT, buf, vo_color, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   Display_FormatFixed(buf, sizeof(buf), "IOUT", io_1000, 1000, 3, 0);
-  LCD.ShowString(84, UI_Y_ROW2_TEXT, buf, io_color, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(84, UI_Y_ROW2_TEXT, buf, io_color, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   // 信息区：百分比/VIN/P/T。
   snprintf(buf, sizeof(buf), "%%:%3d", percent);
-  LCD.ShowString(4, UI_Y_INFO1_TEXT, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(4, UI_Y_INFO1_TEXT, buf, Color_DARKBLUE, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   Display_FormatFixed(buf, sizeof(buf), "VIN", vin_100, 100, 2, 0);
-  LCD.ShowString(52, UI_Y_INFO1_TEXT, buf, Color_WHITE, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(52, UI_Y_INFO1_TEXT, buf, Color_BLACK, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   p_int = p_100 / 100;
   p_frac = p_100 % 100;
@@ -305,10 +307,10 @@ static void DisplayShow_Outval(void)
            t_sign, (long)(t_abs / 10), (long)(t_abs % 10));
   LCD.ShowString(4, UI_Y_INFO2_TEXT, buf,
                          temp_color,
-                         Color_BLACK, ASCII_font_16, font_overlay_OFF);
+                         Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
-  // 底部进度条颜色：CV黄色，CC蓝色。
-  row_color = (Function_SET.OutPutState == CV_State) ? Color_YELLOW : Color_BLUE;
+  // 底部进度条颜色：CV棕色，CC蓝色（白底下对比度更高）。
+  row_color = (Function_SET.OutPutState == CV_State) ? Color_BROWN : Color_BLUE;
 
   LCD.FillColor(UI_BAR_X1, UI_BAR_Y1, UI_BAR_X2, UI_BAR_Y2, Color_GRAY);
   if(percent > 0)
@@ -319,16 +321,16 @@ static void DisplayShow_Outval(void)
   }
 
   snprintf(buf, sizeof(buf), "%3d%%", percent);
-  LCD.ShowString(124, 106, buf, Color_YELLOW, Color_BLACK, ASCII_font_16, font_overlay_OFF);
+  LCD.ShowString(124, 106, buf, Color_DARKBLUE, Color_WHITE, ASCII_font_16, font_overlay_OFF);
 
   // 设置模式下，用矩形高亮当前调节行。
   if(Function_SET.SetMenuState == Menu_SET_State)
   {
     // 先擦除两条候选高亮边框，避免切换时残留旧框。
-    LCD.DrawRectangle(0, UI_Y_ROW1_END - 16U, LCD_W - 1U, UI_Y_ROW1_END - 1U, Color_BLACK);
-    LCD.DrawRectangle(0, UI_Y_ROW2_END - 16U, LCD_W - 1U, UI_Y_ROW2_END - 1U, Color_BLACK);
+    LCD.DrawRectangle(0, UI_Y_ROW1_END - 16U, LCD_W - 1U, UI_Y_ROW1_END - 1U, Color_WHITE);
+    LCD.DrawRectangle(0, UI_Y_ROW2_END - 16U, LCD_W - 1U, UI_Y_ROW2_END - 1U, Color_WHITE);
 
-    cursor_color = (Function_SET.SetVIState == SET_V_State) ? Color_YELLOW : Color_CYAN;
+    cursor_color = (Function_SET.SetVIState == SET_V_State) ? Color_DARKBLUE : Color_BRRED;
     if(Function_SET.SetVIState == SET_V_State)
     {
       LCD.DrawRectangle(0, UI_Y_ROW1_END - 16U, LCD_W - 1U, UI_Y_ROW1_END - 1U, cursor_color);
@@ -340,8 +342,8 @@ static void DisplayShow_Outval(void)
   }
   else
   {
-    LCD.DrawRectangle(0, UI_Y_ROW1_END - 16U, LCD_W - 1U, UI_Y_ROW1_END - 1U, Color_BLACK);
-    LCD.DrawRectangle(0, UI_Y_ROW2_END - 16U, LCD_W - 1U, UI_Y_ROW2_END - 1U, Color_BLACK);
+    LCD.DrawRectangle(0, UI_Y_ROW1_END - 16U, LCD_W - 1U, UI_Y_ROW1_END - 1U, Color_WHITE);
+    LCD.DrawRectangle(0, UI_Y_ROW2_END - 16U, LCD_W - 1U, UI_Y_ROW2_END - 1U, Color_WHITE);
   }
 }
 

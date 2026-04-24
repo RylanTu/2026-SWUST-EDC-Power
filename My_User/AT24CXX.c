@@ -40,7 +40,7 @@ static void I2C_Soft_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
     
     // 配置SCL和SDA引脚为开漏输出模式
-    GPIO_InitStruct.Pin = IIC_SCL_Pin | IC_SDA_Pin;
+    GPIO_InitStruct.Pin = IIC_SCL_Pin | IIC_SDA_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -48,17 +48,17 @@ static void I2C_Soft_Init(void)
     
     // 设置引脚为高电平（空闲状态）
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
 }
 
 // 产生I2C起始信号
 static void I2C_Soft_Start(void)
 {
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_RESET);
     I2C_Soft_Delay();
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
     I2C_Soft_Delay();
@@ -68,10 +68,10 @@ static void I2C_Soft_Start(void)
 static void I2C_Soft_Stop(void)
 {
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
 }
 
@@ -80,12 +80,12 @@ static uint8_t I2C_Soft_WaitAck(void)
 {
     uint8_t retry = 0;
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
     
-    while(HAL_GPIO_ReadPin(IC_SDA_GPIO_Port, IC_SDA_Pin))
+    while(HAL_GPIO_ReadPin(IIC_SDA_GPIO_Port, IIC_SDA_Pin))
     {
         retry++;
         if(retry > 250)
@@ -105,7 +105,7 @@ static void I2C_Soft_Ack(void)
 {
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_RESET);
     I2C_Soft_Delay();
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
@@ -118,7 +118,7 @@ static void I2C_Soft_NAck(void)
 {
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
     I2C_Soft_Delay();
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
     HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
@@ -136,9 +136,9 @@ static void I2C_Soft_SendByte(uint8_t byte)
     while(i--)
     {
         if(byte & 0x80)
-            HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
         else
-            HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_RESET);
         
         byte <<= 1;
         I2C_Soft_Delay();
@@ -147,7 +147,7 @@ static void I2C_Soft_SendByte(uint8_t byte)
         HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_RESET);
         I2C_Soft_Delay();
     }
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
 }
 
 // 接收一个字节数据
@@ -156,7 +156,7 @@ static uint8_t I2C_Soft_ReadByte(uint8_t ack)
     uint8_t i = 8;
     uint8_t byte = 0;
     
-    HAL_GPIO_WritePin(IC_SDA_GPIO_Port, IC_SDA_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IIC_SDA_GPIO_Port, IIC_SDA_Pin, GPIO_PIN_SET);
     I2C_Soft_Delay();
     
     while(i--)
@@ -167,7 +167,7 @@ static uint8_t I2C_Soft_ReadByte(uint8_t ack)
         HAL_GPIO_WritePin(IIC_SCL_GPIO_Port, IIC_SCL_Pin, GPIO_PIN_SET);
         I2C_Soft_Delay();
         
-        if(HAL_GPIO_ReadPin(IC_SDA_GPIO_Port, IC_SDA_Pin))
+        if(HAL_GPIO_ReadPin(IIC_SDA_GPIO_Port, IIC_SDA_Pin))
             byte |= 0x01;
     }
     
