@@ -15,43 +15,6 @@
 *函数参数:	按键值
 *返 回 值:	无
 *******************************************************************/
-/* Private function prototypes------------------------------------------------*/      
-/******************************************************************
-*函数名称:	按键处理函数
-*函数功能:	按键中断
-*函数参数:	按键值
-*返 回 值:	无
-*******************************************************************/
-void Key_deal(uint8_t key_num)
-{
-switch (key_num)
-     {
-          case 1:
-               KEY_UP.KEY_Flag=TRUE; //UP键按下
-               //printf(" The KEY_UP button is pressed!\r\n\r\n");
-               break;
-          case 2:
-               KEY_SET.KEY_Flag=TRUE; //SET键按下
-               //printf(" The KEY_SET button is pressed!\r\n\r\n");
-               break;
-          case 3:
-               KEY_DOWN.KEY_Flag=TRUE; //DOWN键按下
-               //printf(" The KEY_DOWN button is pressed!\r\n\r\n");
-               break;
-          case  4:
-               KEY_ON.KEY_Flag=TRUE; //ON键按下
-               //printf(" The KEY_ON button is pressed!\r\n\r\n");
-               break;
-          case  5:
-               KEY_OK.KEY_Flag=TRUE; //OK键按下
-               //printf(" The KEY_OK button is pressed!\r\n\r\n");
-               break;
-          default:  
-               printf("不知名按键!\r\n\r\n");   //错误-外部中断回调函数中，按键键值错误
-    }
-}
-
-
 /******************************************************************
 *函数名称:	HAL_TIM_PeriodElapsedCallback   定时器中断回调函数
 *函数功能:	
