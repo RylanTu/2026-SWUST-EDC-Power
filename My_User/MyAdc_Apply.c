@@ -46,9 +46,11 @@ static void ADC_GetNewSample (void) //获取ADC采样值
 {
   uint16_t i=0;
   float SUM[4]= {0.0f,0.0f,0.0f,0.0f};
-  float set_current;//2026.4.16 RylanTu:修改这个可以更改切换阈值
+  float set_current;
   float cc_enter_threshold;
   float cc_exit_threshold;
+  static uint8_t cc_enter_cnt = 0;
+  static uint8_t cc_exit_cnt = 0;
 
   for(i=PW_ADC_SAMPLE_LEN-1; i>0; i--)//滑动（递推）平均滤波
   {
@@ -108,23 +110,44 @@ static void ADC_GetNewSample (void) //获取ADC采样值
     MyADC.Io = 0;
   }
 
-  //在电流阈值附近加入迟滞，避免CV/CC状态来回抖动
+  // 负载变化时自动在CV/CC间平滑切换：
+  // 1) 迟滞阈值避免抖动；2) 连续样本判定避免瞬时毛刺；
+  // 切换仅修改模式状态，不改设定值与PWM更新路径，避免冲击与掉压。
   set_current = (float)Function_SET.Set_IOUT / 1000.0f;
   cc_enter_threshold = set_current * (1.0f + CC_HYS_ENTER_PCT / 100.0f);
   cc_exit_threshold = set_current * (1.0f - CC_HYS_EXIT_PCT / 100.0f);
+
   if(Function_SET.OutPutState == CC_State)
   {
     if(MyADC.Io <= cc_exit_threshold)
     {
-      Function_SET.OutPutState=CV_State;//恒压
+      if(++cc_exit_cnt >= 3U)
+      {
+        Function_SET.OutPutState = CV_State;
+        cc_exit_cnt = 0U;
+      }
     }
+    else
+    {
+      cc_exit_cnt = 0U;
+    }
+    cc_enter_cnt = 0U;
   }
   else
   {
     if(MyADC.Io >= cc_enter_threshold)
     {
-      Function_SET.OutPutState=CC_State;//恒流
+      if(++cc_enter_cnt >= 3U)
+      {
+        Function_SET.OutPutState = CC_State;
+        cc_enter_cnt = 0U;
+      }
     }
+    else
+    {
+      cc_enter_cnt = 0U;
+    }
+    cc_exit_cnt = 0U;
   }
 
 }

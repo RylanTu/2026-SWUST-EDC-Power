@@ -30,8 +30,8 @@ static void KEY_EC11_Detect(void)
 
 }
 /*逻辑按键映射（物理引脚）：
-*key1(K4)-向上选择
-*key2(K3)-向下选择
+*key1(K4)-VSET/ISET切换
+*key2(K3)-CV/CC模式切换(仅SET状态)
 *key3(K2)-设置输出调节
 *key4(K5)-开关机调节
 *key5(EC11按压)-步进调节

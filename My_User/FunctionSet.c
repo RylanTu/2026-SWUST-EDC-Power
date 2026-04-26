@@ -6,6 +6,12 @@
 #define PROTECT_CURR    1.8f   //过流保护阈值(A)
 #define PROTECT_TEMP   60.0f   //过温保护阈值(℃)
 
+/* 电压校准模型（最小二乘拟合）: V_meas = k * V_set + b
+ * 反向补偿: V_set_comp = (V_target - b) / k
+ */
+#define VOUT_FIT_K      0.993364f
+#define VOUT_FIT_B      0.081634f
+
 /* Private variables----------------------------------------------------------*/
 
 /* Private function prototypes------------------------------------------------*/
@@ -86,16 +92,32 @@ static void UP_Switch_Adjust(void)  //上键开关调节
 {
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
-		Function_SET.SetVIState=SET_V_State;
+		// K4: 在设置菜单下切换 VSET/ISET
+		if(Function_SET.SetVIState == SET_V_State)
+		{
+			Function_SET.SetVIState = SET_I_State;
+		}
+		else
+		{
+			Function_SET.SetVIState = SET_V_State;
+		}
 	}
 	
 }    	
 
 static void DOWN_Switch_Adjust(void)  //下键开关调节
 {
+	// K3: 仅在设置菜单下允许切换恒压/恒流模式
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
-		Function_SET.SetVIState=SET_I_State;
+		if(Function_SET.OutPutState == CV_State)
+		{
+			Function_SET.OutPutState = CC_State;
+		}
+		else
+		{
+			Function_SET.OutPutState = CV_State;
+		}
 	}
 }
 
@@ -291,6 +313,8 @@ static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 	uint16_t CC_Duty;         //
 	uint16_t Vout_val;	
 	uint16_t Iout_val;
+	float target_v;
+	float comp_v;
 	float SET_Vout_val;
 	float SET_Iout_val;
 	if(Function_SET.PowrputState==ON_State)
@@ -300,8 +324,18 @@ static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 		//printf("Vout_val:%d\r\n\r\n",Vout_val);
 		//printf("Iout_val:%d\r\n\r\n",Iout_val);
 
-		// Set_VOUT单位10mV: /100转换为V，再匹配11分压比
-		SET_Vout_val=(float)Vout_val/100/11/3.3*1440;
+		// Set_VOUT单位10mV: /100转换为V，先做反向补偿，再匹配11分压比
+		target_v = (float)Vout_val / 100.0f;
+		comp_v = (target_v - VOUT_FIT_B) / VOUT_FIT_K;
+		if(comp_v < 0.0f)
+		{
+			comp_v = 0.0f;
+		}
+		if(comp_v > ((float)SET_VOUT_MAX / 100.0f))
+		{
+			comp_v = (float)SET_VOUT_MAX / 100.0f;
+		}
+		SET_Vout_val = comp_v / 11.0f / 3.3f * 1440.0f;
 		//printf("SET_Vout_val:%f\r\n\r\n",SET_Vout_val); 
 		CV_Duty=(uint16_t)SET_Vout_val;
 		//CC_Duty=(float)((((Iout_val/100*0.0254)/0.75+((Iout_val/100*0.0254)/0.75/4*30))/3.3)*1440); //采样电阻0.025R
