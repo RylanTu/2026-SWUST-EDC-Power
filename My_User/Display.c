@@ -39,6 +39,23 @@
 #define UI_BAR_X2           (UI_BAR_TEXT_X - 2U)
 #define UI_BAR_Y2           LCD_H
 
+/* 数值区局部刷新窗口（按字符宽度裁剪，避免整行清屏） */
+#define UI_ASCII_W             6U
+#define UI_VSET_VAL_X         34U
+#define UI_VSET_VAL_X2        76U
+#define UI_ISET_VAL_X         34U
+#define UI_ISET_VAL_X2        76U
+#define UI_VOUT_VAL_X        114U
+#define UI_VOUT_VAL_X2       156U
+#define UI_IOUT_VAL_X        114U
+#define UI_IOUT_VAL_X2       158U
+#define UI_VIN_VAL_X          26U
+#define UI_VIN_VAL_X2         44U
+#define UI_PWR_VAL_X          (UI_COL_MID_X1 + 14U)
+#define UI_PWR_VAL_X2         98U
+#define UI_TMP_VAL_X          (UI_COL_RIGHT_X1 + 14U)
+#define UI_TMP_VAL_X2         158U
+
 //static void Relay_State(void);
 
 
@@ -113,6 +130,17 @@ static void DisplayShow_Once(void)
   LCD.FillColor(UI_BAR_X1, UI_BAR_Y1, UI_BAR_X2, UI_BAR_Y2, Color_GRAY);
   LCD.FillColor(UI_BAR_X2, UI_BAR_Y1, LCD_W, UI_BAR_Y2, Color_WHITE);
 
+  // 静态标签仅绘制一次，后续仅更新数值区域。
+  LCD.ShowString(4U, UI_Y_ROW1_TEXT, "VSET:", Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+  LCD.ShowString(4U, UI_Y_ROW2_TEXT, "ISET:", Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+  LCD.ShowString(84U, UI_Y_ROW1_TEXT, "VOUT:", Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+  LCD.ShowString(84U, UI_Y_ROW2_TEXT, "IOUT:", Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+  LCD.ShowString(2U, UI_Y_INFO1_TEXT, "VIN:", Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+  LCD.ShowString((uint16_t)(UI_COL_MID_X1 + 2U), UI_Y_INFO1_TEXT, "P:",
+                 Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+  LCD.ShowString((uint16_t)(UI_COL_RIGHT_X1 + 2U), UI_Y_INFO1_TEXT, "T:",
+                 Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+
   Display.Show_Once_Flag = FALSE;
 }
 
@@ -168,6 +196,10 @@ static void DisplayShow_Cursor(void)
   uint16_t x_base;
   uint16_t y_base;
   uint16_t x_sel;
+  uint16_t x_box1;
+  uint16_t y_box1;
+  uint16_t x_box2;
+  uint16_t y_box2;
   uint8_t idx;
 
   if(Function_SET.SetMenuState != Menu_SET_State)
@@ -226,12 +258,17 @@ static void DisplayShow_Cursor(void)
   }
 
   x_sel = (uint16_t)(x_base + idx * 6U);
+  x_box1 = (x_sel > 0U) ? (uint16_t)(x_sel - 1U) : x_sel;
+  y_box1 = (y_base > 0U) ? (uint16_t)(y_base - 1U) : y_base;
+  x_box2 = (uint16_t)(x_sel + 6U);
+  y_box2 = (uint16_t)(y_base + 12U);
 
-  // 按位反显：黑底白字 + 白色细边框
+  // 按位反显：放大一圈黑底高亮，提升位选可读性。
+  LCD.FillColor(x_box1, y_box1, x_box2, y_box2, Color_BLACK);
   LCD.ShowChar(x_sel, y_base,
                set_buf[idx], Color_WHITE, Color_BLACK,
                ASCII_font_12, font_overlay_OFF);
-  LCD.DrawRectangle(x_sel, y_base, (uint16_t)(x_sel + 5U), (uint16_t)(y_base + 11U), Color_WHITE);
+  LCD.DrawRectangle(x_box1, y_box1, x_box2, y_box2, Color_WHITE);
 
 }
 
@@ -313,11 +350,13 @@ static void DisplayShow_Setval(void)
   uint16_t color_vset = Color_BLACK;
   uint16_t color_iset = Color_BLACK;
 
-  Display_FormatFixed(buf, sizeof(buf), "VSET", (int32_t)Function_SET.Set_VOUT,
-                      100, 2, 'V');
+  snprintf(buf, sizeof(buf), "%lu.%02luV",
+           (unsigned long)(Function_SET.Set_VOUT / 100U),
+           (unsigned long)(Function_SET.Set_VOUT % 100U));
   if(strcmp(ui_last_vset, buf) != 0)
   {
-    LCD.ShowString(4, UI_Y_ROW1_TEXT, buf, color_vset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_VSET_VAL_X, UI_Y_HEADER_END + 1U, UI_VSET_VAL_X2, UI_Y_ROW1_END, Color_WHITE);
+    LCD.ShowString(UI_VSET_VAL_X, UI_Y_ROW1_TEXT, buf, color_vset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_vset, buf, sizeof(ui_last_vset) - 1U);
     ui_last_vset[sizeof(ui_last_vset) - 1U] = '\0';
   }
@@ -327,14 +366,17 @@ static void DisplayShow_Setval(void)
       (ui_last_cursor_vi_state != Function_SET.SetVIState) ||
       (ui_last_cursor_step_state != Function_SET.SetStepState))
   {
-    LCD.ShowString(4, UI_Y_ROW1_TEXT, buf, color_vset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_VSET_VAL_X, UI_Y_HEADER_END + 1U, UI_VSET_VAL_X2, UI_Y_ROW1_END, Color_WHITE);
+    LCD.ShowString(UI_VSET_VAL_X, UI_Y_ROW1_TEXT, buf, color_vset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
   }
 
-  Display_FormatFixed(buf, sizeof(buf), "ISET", (int32_t)Function_SET.Set_IOUT,
-                      1000, 3, 'A');
+  snprintf(buf, sizeof(buf), "%lu.%03luA",
+           (unsigned long)(Function_SET.Set_IOUT / 1000U),
+           (unsigned long)(Function_SET.Set_IOUT % 1000U));
   if(strcmp(ui_last_iset, buf) != 0)
   {
-    LCD.ShowString(4, UI_Y_ROW2_TEXT, buf, color_iset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_ISET_VAL_X, UI_Y_ROW1_END + 1U, UI_ISET_VAL_X2, UI_Y_ROW2_END, Color_WHITE);
+    LCD.ShowString(UI_ISET_VAL_X, UI_Y_ROW2_TEXT, buf, color_iset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_iset, buf, sizeof(ui_last_iset) - 1U);
     ui_last_iset[sizeof(ui_last_iset) - 1U] = '\0';
   }
@@ -343,7 +385,8 @@ static void DisplayShow_Setval(void)
           (ui_last_cursor_vi_state != Function_SET.SetVIState) ||
           (ui_last_cursor_step_state != Function_SET.SetStepState))
   {
-    LCD.ShowString(4, UI_Y_ROW2_TEXT, buf, color_iset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_ISET_VAL_X, UI_Y_ROW1_END + 1U, UI_ISET_VAL_X2, UI_Y_ROW2_END, Color_WHITE);
+    LCD.ShowString(UI_ISET_VAL_X, UI_Y_ROW2_TEXT, buf, color_iset, Color_WHITE, ASCII_font_12, font_overlay_OFF);
   }
 
   DisplayShow_Cursor();
@@ -383,8 +426,32 @@ static void DisplayShow_Outval(void)
   int32_t t_int;
   int32_t t_dec;
 
-  p_out = MyADC.Io * MyADC.Vo;
-  temperature = MyADC.Ni;
+  // 数值显示每0.5秒更新一次（25次×20ms=500ms），告警检测仍用实时ADC值
+  {
+    static uint8_t data_tick = 0;
+    static float snap_vo = 0.0f;
+    static float snap_io = 0.0f;
+    static float snap_vi = 0.0f;
+    static float snap_ni = 0.0f;
+
+    if(data_tick == 0U)
+    {
+      snap_vo = MyADC.Vo;
+      snap_io = MyADC.Io;
+      snap_vi = MyADC.Vi;
+      snap_ni = MyADC.Ni;
+    }
+    if(++data_tick >= 25U)
+    {
+      data_tick = 0U;
+    }
+
+    p_out = snap_io * snap_vo;
+    temperature = snap_ni;
+    vo_100  = Display_RoundToScale(snap_vo, 100);
+    io_1000 = Display_RoundToScale(snap_io, 1000);
+    vin_100 = Display_RoundToScale(snap_vi, 100);
+  }
 
   // UI层闪烁节拍：仅用于告警显示，不影响控制逻辑。
   if(++ui_blink_div >= 25)
@@ -393,8 +460,9 @@ static void DisplayShow_Outval(void)
     ui_blink_phase ^= 1U;
   }
 
+  // 告警仍使用实时ADC值，保证保护响应速度
   alarm_oc = (MyADC.Io > DISP_WARN_CURR) ? 1U : 0U;
-  alarm_ot = (temperature > DISP_WARN_TEMP) ? 1U : 0U;
+  alarm_ot = (MyADC.Ni > DISP_WARN_TEMP) ? 1U : 0U;
   alarm_ov = (MyADC.Vo > DISP_WARN_VOLT) ? 1U : 0U;
   vo_color = alarm_ov ? Color_WHITE : Color_BLACK;
   io_color = alarm_oc ? Color_WHITE : Color_BLACK;
@@ -403,11 +471,8 @@ static void DisplayShow_Outval(void)
   iout_bg = alarm_oc ? Color_RED : Color_WHITE;
   temp_bg = alarm_ot ? Color_RED : Color_WHITE;
 
-  vo_100 = Display_RoundToScale(MyADC.Vo, 100);
-  io_1000 = Display_RoundToScale(MyADC.Io, 1000);
-  vin_100 = Display_RoundToScale(MyADC.Vi, 100);
   p_100 = Display_RoundToScale(p_out, 100);
-  t_10 = Display_RoundToScale(temperature, 10);
+  t_10  = Display_RoundToScale(temperature, 10);
 
   // 进度百分比沿用当前调节对象（电压/电流）
   if(Function_SET.SetVIState == SET_V_State)
@@ -424,25 +489,39 @@ static void DisplayShow_Outval(void)
   }
 
   // 右侧实测值与左侧设定值对齐显示。
-  if((ui_last_alarm_ov != alarm_ov) || (ui_last_alarm_oc != alarm_oc) || (ui_last_alarm_ot != alarm_ot))
+  // Bug1修复：各区域背景填充与自身告警解耦，避免 iout 区被 ov 触发的填充覆盖后未重绘
+  if(ui_last_alarm_ov != alarm_ov)
   {
-    LCD.FillColor(UI_X_SPLIT + 1U, UI_Y_HEADER_END + 1U, LCD_W, UI_Y_ROW1_END, (LCD_Color_t)vout_bg);
-    LCD.FillColor(UI_X_SPLIT + 1U, UI_Y_ROW1_END + 1U, LCD_W, UI_Y_ROW2_END, (LCD_Color_t)iout_bg);
-    LCD.FillColor(UI_COL_RIGHT_X1, UI_Y_ROW2_END + 1U, LCD_W, UI_Y_INFO_END, (LCD_Color_t)temp_bg);
+    LCD.FillColor(UI_X_SPLIT + 1U, UI_Y_HEADER_END + 1U, LCD_W - 1U, UI_Y_ROW1_END, (LCD_Color_t)vout_bg);
+  }
+  if(ui_last_alarm_oc != alarm_oc)
+  {
+    LCD.FillColor(UI_X_SPLIT + 1U, UI_Y_ROW1_END + 1U, LCD_W - 1U, UI_Y_ROW2_END, (LCD_Color_t)iout_bg);
+  }
+  if(ui_last_alarm_ot != alarm_ot)
+  {
+    LCD.FillColor(UI_COL_RIGHT_X1, UI_Y_ROW2_END + 1U,
+                  LCD_W - 1U, UI_Y_INFO_END, (LCD_Color_t)temp_bg);
   }
 
-  Display_FormatFixed(buf, sizeof(buf), "VOUT", vo_100, 100, 2, 'V');
+  snprintf(buf, sizeof(buf), "%ld.%02ldV",
+           (long)(vo_100 / 100),
+           (long)((vo_100 >= 0) ? (vo_100 % 100) : (-(vo_100 % 100))));
   if((strcmp(ui_last_vout, buf) != 0) || (ui_last_alarm_ov != alarm_ov))
   {
-    LCD.ShowString(84, UI_Y_ROW1_TEXT, buf, vo_color, vout_bg, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_VOUT_VAL_X, UI_Y_HEADER_END + 1U, UI_VOUT_VAL_X2, UI_Y_ROW1_END, (LCD_Color_t)vout_bg);
+    LCD.ShowString(UI_VOUT_VAL_X, UI_Y_ROW1_TEXT, buf, vo_color, vout_bg, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_vout, buf, sizeof(ui_last_vout) - 1U);
     ui_last_vout[sizeof(ui_last_vout) - 1U] = '\0';
   }
 
-  Display_FormatFixed(buf, sizeof(buf), "IOUT", io_1000, 1000, 3, 'A');
+  snprintf(buf, sizeof(buf), "%ld.%03ldA",
+           (long)(io_1000 / 1000),
+           (long)((io_1000 >= 0) ? (io_1000 % 1000) : (-(io_1000 % 1000))));
   if((strcmp(ui_last_iout, buf) != 0) || (ui_last_alarm_oc != alarm_oc))
   {
-    LCD.ShowString(84, UI_Y_ROW2_TEXT, buf, io_color, iout_bg, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_IOUT_VAL_X, UI_Y_ROW1_END + 1U, UI_IOUT_VAL_X2, UI_Y_ROW2_END, (LCD_Color_t)iout_bg);
+    LCD.ShowString(UI_IOUT_VAL_X, UI_Y_ROW2_TEXT, buf, io_color, iout_bg, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_iout, buf, sizeof(ui_last_iout) - 1U);
     ui_last_iout[sizeof(ui_last_iout) - 1U] = '\0';
   }
@@ -459,28 +538,31 @@ static void DisplayShow_Outval(void)
   t_int = t_abs / 10;
   t_dec = t_abs % 10;
 
-  snprintf(buf, sizeof(buf), "VIN:%ldV",
+  snprintf(buf, sizeof(buf), "%ldV",
            (long)(vin_100 / 100));
   if(strcmp(ui_last_vin, buf) != 0)
   {
-    LCD.ShowString(2, UI_Y_INFO1_TEXT, buf, Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
+    LCD.FillColor(UI_VIN_VAL_X, UI_Y_ROW2_END + 1U, UI_VIN_VAL_X2, UI_Y_INFO_END, Color_WHITE);
+    LCD.ShowString(UI_VIN_VAL_X, UI_Y_INFO1_TEXT, buf, Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_vin, buf, sizeof(ui_last_vin) - 1U);
     ui_last_vin[sizeof(ui_last_vin) - 1U] = '\0';
   }
 
-  snprintf(buf, sizeof(buf), "P:%ld.%01ldW", (long)p_int, (long)(p_frac / 10));
+  snprintf(buf, sizeof(buf), "%ld.%01ldW", (long)p_int, (long)(p_frac / 10));
   if(strcmp(ui_last_pwr, buf) != 0)
   {
-    LCD.ShowString((uint16_t)(UI_COL_MID_X1 + 2U), UI_Y_INFO1_TEXT, buf,
+    LCD.FillColor(UI_PWR_VAL_X, UI_Y_ROW2_END + 1U, UI_PWR_VAL_X2, UI_Y_INFO_END, Color_WHITE);
+    LCD.ShowString(UI_PWR_VAL_X, UI_Y_INFO1_TEXT, buf,
                    Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_pwr, buf, sizeof(ui_last_pwr) - 1U);
     ui_last_pwr[sizeof(ui_last_pwr) - 1U] = '\0';
   }
 
-  snprintf(buf, sizeof(buf), "T:%s%ld.%01ldC", t_sign, (long)t_int, (long)t_dec);
+  snprintf(buf, sizeof(buf), "%s%ld.%01ldC", t_sign, (long)t_int, (long)t_dec);
   if((strcmp(ui_last_tmp, buf) != 0) || (ui_last_alarm_ot != alarm_ot))
   {
-    LCD.ShowString((uint16_t)(UI_COL_RIGHT_X1 + 2U), UI_Y_INFO1_TEXT, buf,
+    LCD.FillColor(UI_TMP_VAL_X, UI_Y_ROW2_END + 1U, UI_TMP_VAL_X2, UI_Y_INFO_END, (LCD_Color_t)temp_bg);
+    LCD.ShowString(UI_TMP_VAL_X, UI_Y_INFO1_TEXT, buf,
                    temp_color, temp_bg, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_tmp, buf, sizeof(ui_last_tmp) - 1U);
     ui_last_tmp[sizeof(ui_last_tmp) - 1U] = '\0';
