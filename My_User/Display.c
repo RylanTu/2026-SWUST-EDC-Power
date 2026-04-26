@@ -68,9 +68,6 @@ static void DisplayShow_Outval(void);       //显示输出值
 static void DisplayShow_Cursor(void);       //显示光标
 static uint16_t Display_ModeThemeColor(void);
 static int32_t Display_RoundToScale(float value, int32_t scale);
-static void Display_FormatFixed(char *buf, size_t len, const char *label,
-                                int32_t scaled_val, int32_t scale,
-                                uint8_t frac_digits, char unit);
 
 static uint8_t ui_blink_phase = 0;
 static uint8_t ui_blink_div = 0;
@@ -279,69 +276,6 @@ static int32_t Display_RoundToScale(float value, int32_t scale)
     return (int32_t)(value * (float)scale + 0.5f);
   }
   return (int32_t)(value * (float)scale - 0.5f);
-}
-
-static void Display_FormatFixed(char *buf, size_t len, const char *label,
-                                int32_t scaled_val, int32_t scale,
-                                uint8_t frac_digits, char unit)
-{
-  int32_t abs_val = (scaled_val < 0) ? -scaled_val : scaled_val;
-  int32_t integer_part = abs_val / scale;
-  int32_t frac_part = abs_val % scale;
-  const char *sign = (scaled_val < 0) ? "-" : "";
-
-  if(frac_digits == 3U)
-  {
-    if(unit != 0)
-    {
-      snprintf(buf, len, "%s:%s%ld.%03ld%c", label, sign,
-               (long)integer_part, (long)frac_part, unit);
-    }
-    else
-    {
-      snprintf(buf, len, "%s:%s%ld.%03ld", label, sign,
-               (long)integer_part, (long)frac_part);
-    }
-  }
-  else if(frac_digits == 2U)
-  {
-    if(unit != 0)
-    {
-      snprintf(buf, len, "%s:%s%ld.%02ld%c", label, sign,
-               (long)integer_part, (long)frac_part, unit);
-    }
-    else
-    {
-      snprintf(buf, len, "%s:%s%ld.%02ld", label, sign,
-               (long)integer_part, (long)frac_part);
-    }
-  }
-  else if(frac_digits == 1U)
-  {
-    if(unit != 0)
-    {
-      snprintf(buf, len, "%s:%s%ld.%01ld%c", label, sign,
-               (long)integer_part, (long)frac_part, unit);
-    }
-    else
-    {
-      snprintf(buf, len, "%s:%s%ld.%01ld", label, sign,
-               (long)integer_part, (long)frac_part);
-    }
-  }
-  else
-  {
-    if(unit != 0)
-    {
-      snprintf(buf, len, "%s:%s%ld%c", label, sign,
-               (long)integer_part, unit);
-    }
-    else
-    {
-      snprintf(buf, len, "%s:%s%ld", label, sign,
-               (long)integer_part);
-    }
-  }
 }
 
 static void DisplayShow_Setval(void)
