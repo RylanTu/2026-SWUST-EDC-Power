@@ -110,14 +110,14 @@ static void ADC_GetNewSample (void) //获取ADC采样值
 
 
   //MyADC.Io = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3/4096) / 68.5 / 1.25 / 0.01 ;//理论37，第一版实测增益68.5，第二版实测增益68.5* 1.25
-  if(MyADC.Vo<0.2)
+  if(MyADC.Vo < 0.15f)  //输出电压偏置补偿：0.15V以下视为0
   {
-    MyADC.Vo = 0;
+    MyADC.Vo = 0.0f;
   }
   //LED.LED_Filp(LED_TEST); //TEST灯翻转一次
-  if(MyADC.Io<0)
+  if(MyADC.Io < 0.003f)  //无负载偏置补偿：0.003A以下视为0
   {
-    MyADC.Io = 0;
+    MyADC.Io = 0.0f;
   }
 
   // 负载变化时自动在CV/CC间平滑切换：
@@ -126,6 +126,15 @@ static void ADC_GetNewSample (void) //获取ADC采样值
      (Function_SET.SetMenuState == Menu_OUT_State))
   {
     set_current = (float)Function_SET.Set_IOUT / 1000.0f;
+
+    if(Function_SET.Set_IOUT == SET_IOUT_MIN)
+    {
+      Function_SET.OutPutState = CV_State;
+      cc_enter_cnt = 0U;
+      cc_exit_cnt = 0U;
+      return;
+    }
+
     cc_enter_threshold = set_current * (1.0f + CC_HYS_ENTER_PCT / 100.0f);
     cc_exit_threshold = set_current * (1.0f - CC_HYS_EXIT_PCT / 100.0f);
 
@@ -136,7 +145,6 @@ static void ADC_GetNewSample (void) //获取ADC采样值
         if(++cc_exit_cnt >= 3U)
         {
           Function_SET.OutPutState = CV_State;
-          FunctionSet_SyncSetVIWithMode();
           cc_exit_cnt = 0U;
         }
       }
@@ -153,7 +161,6 @@ static void ADC_GetNewSample (void) //获取ADC采样值
         if(++cc_enter_cnt >= 3U)
         {
           Function_SET.OutPutState = CC_State;
-          FunctionSet_SyncSetVIWithMode();
           cc_enter_cnt = 0U;
         }
       }

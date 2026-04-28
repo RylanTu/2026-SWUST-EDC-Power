@@ -5,6 +5,7 @@
 #define PROTECT_VOLT   20.0f   //过压保护阈值(V)
 #define PROTECT_CURR    1.8f   //过流保护阈值(A)
 #define PROTECT_TEMP   60.0f   //过温保护阈值(℃)
+#define MIN_SHUTDOWN_TIME_MS  300U  //最小关机时间(ms) 防止快速开关导致保护反复触发
 
 /* 电压校准模型（最小二乘拟合）: V_meas = k * V_set + b
  * 反向补偿: V_set_comp = (V_target - b) / k
@@ -13,6 +14,7 @@
 #define VOUT_FIT_B      0.081634f
 
 /* Private variables----------------------------------------------------------*/
+static uint16_t shutdown_timer_ms = 0U;  //关机计时器(ms) 用于实现最小关机时间防护
 
 /* Private function prototypes------------------------------------------------*/
 
@@ -35,6 +37,7 @@ FunctionSet_Type  Function_SET =    //功能设置
 {
 	OFF_State,           	//电压模式    有开机模式  关机模式
 	CV_State,				//输出模式	  有恒压模式  恒流模式
+	CV_State,				//用户选择模式  有恒压模式  恒流模式
 	Menu_OUT_State,			//设置菜单输出状态
 	SET_V_State,		 	//设置电压模式
 	SET_State_First,		//设置步进第一位
@@ -55,7 +58,7 @@ FunctionSet_Type  Function_SET =    //功能设置
 
 void FunctionSet_SyncSetVIWithMode(void)
 {
-	if(Function_SET.OutPutState == CV_State)
+	if(Function_SET.SelectOutPutState == CV_State)
 	{
 		Function_SET.SetVIState = SET_V_State;
 	}
@@ -69,12 +72,20 @@ static void OUT_Switch_Adjust(void)  //输出开关调节
 { 
 	if(Function_SET.PowrputState==OFF_State)   //开机状态
     {
+		//检查最小关机时间 防止快速开关导致保护反复触发
+		if(shutdown_timer_ms < MIN_SHUTDOWN_TIME_MS)
+		{
+			//关机时间不足 忽略启动请求
+			return;
+		}
+		
 		//PWMSET.BUCK_POWER_Start();	  //执行开机任务
 		PWMSET.PWM_Start();
 		AT24CXX.Write_SET_VAL(Function_SET.Set_VOUT,Function_SET.Set_IOUT);//备份设置电压
 		printf(" The KEY_ON button is ON!\r\n\r\n"); 
-		Function_SET.PowrputState=ON_State;  //关机模式 
+		Function_SET.PowrputState=ON_State;  //开机模式 
 		Function_SET.SetMenuState=Menu_OUT_State; //菜单输出模式
+		shutdown_timer_ms = 0U; //复位关机计时器
     }
 	else
     {
@@ -83,8 +94,10 @@ static void OUT_Switch_Adjust(void)  //输出开关调节
 		printf(" The KEY_ON button is OFF!\r\n\r\n");
 		Function_SET.PowrputState=OFF_State;  //关机模式 
 		Function_SET.SetMenuState=Menu_OUT_State;  //菜单输出模式
+		shutdown_timer_ms = 0U; //启动关机计时
     }  
 }
+
 static void SET_Switch_Adjust(void)  //输出/设置模式
 {	
 	if(Function_SET.PowrputState==OFF_State)  //关机模式
@@ -123,13 +136,13 @@ static void DOWN_Switch_Adjust(void)  //下键开关调节
 	// K3: 仅在设置菜单下允许切换恒压/恒流模式
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
-		if(Function_SET.OutPutState == CV_State)
+		if(Function_SET.SelectOutPutState == CV_State)
 		{
-			Function_SET.OutPutState = CC_State;
+			Function_SET.SelectOutPutState = CC_State;
 		}
 		else
 		{
-			Function_SET.OutPutState = CV_State;
+			Function_SET.SelectOutPutState = CV_State;
 		}
 		FunctionSet_SyncSetVIWithMode();
 	}
@@ -386,6 +399,12 @@ static void Check_Protect(void)  //保护检查
 	static uint8_t ot_cnt = 0U;
 	const uint8_t protect_confirm_cnt = 5U; // 10ms循环下约50ms确认，抑制瞬时毛刺误触发
 
+	//更新最小关机时间计时器 每10ms递增
+	if(Function_SET.PowrputState == OFF_State && shutdown_timer_ms < MIN_SHUTDOWN_TIME_MS)
+	{
+		shutdown_timer_ms += 10U;
+	}
+
 	//默认无保护
 	Function_SET.ProtectState = 0;
 
@@ -445,6 +464,7 @@ static void Check_Protect(void)  //保护检查
 		{
 			PWMSET.PWM_Stop();
 			Function_SET.PowrputState = OFF_State;
+			shutdown_timer_ms = 0U; //保护触发关机时复位计时器
 			printf("[PROTECT] state=%d Vo=%.3fV Io=%.3fA T=%.2fC\r\n",
 			       Function_SET.ProtectState,
 			       MyADC.Vo,

@@ -24,7 +24,8 @@ typedef enum
 typedef struct  
 {
 	uint8_t PowrputState ;           	//电源模式    有开机模式 关机模式
-	uint8_t OutPutState;				//输出模式	  有恒压模式 恒流模式
+	uint8_t OutPutState;				//实际输出模式	  有恒压模式 恒流模式
+	uint8_t SelectOutPutState;			//用户选择模式  有恒压模式 恒流模式
 	uint8_t SetMenuState;               //菜单模式状态 输出 设置
 	uint8_t SetVIState;               //设置电压步进模式  有 退出 第一位 第二位 
 	uint8_t SetStepState;               //设置电流步进模式 有 退出 第一位 第二位 第三位
