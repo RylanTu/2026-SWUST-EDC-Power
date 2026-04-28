@@ -88,6 +88,8 @@ typedef enum
 
 extern FunctionSet_Type	Function_SET;    //功能设置
 
+void FunctionSet_SyncSetVIWithMode(void);
+
 
 #endif /* __FunctionSet__ */
 

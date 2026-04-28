@@ -6,6 +6,13 @@
 
 /* Private define-------------------------------------------------------------*/
 
+/* 输出电压ADC采样校准模型（最小二乘拟合，12组实测数据）:
+ * V_adc_raw = ADC_VO_FIT_K * V_real + ADC_VO_FIT_B
+ * 反向补偿: V_real = (V_adc_raw - ADC_VO_FIT_B) / ADC_VO_FIT_K
+ */
+#define ADC_VO_FIT_K    1.09930f   /* ADC采样增益误差（实测斜率） */
+#define ADC_VO_FIT_B    0.02788f   /* ADC采样偏置误差（实测截距，V） */
+
 /* Private variables----------------------------------------------------------*/
 
 /* Private function prototypes------------------------------------------------*/
@@ -94,7 +101,10 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025;//运放增益约15，采样电阻0.025R
   MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 1.0f;   //输出电流
   MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //输入电压
-  MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //输出电压
+  {
+    float vo_raw = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;
+    MyADC.Vo = (vo_raw - ADC_VO_FIT_B) / ADC_VO_FIT_K;  //输出电压（ADC校准补偿后）
+  }
 
   //MyADC.Vo = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3/4096) *((100+10)/10)/1.1;
 
@@ -111,42 +121,52 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   }
 
   // 负载变化时自动在CV/CC间平滑切换：
-  // 1) 迟滞阈值避免抖动；2) 连续样本判定避免瞬时毛刺；
-  // 切换仅修改模式状态，不改设定值与PWM更新路径，避免冲击与掉压。
-  set_current = (float)Function_SET.Set_IOUT / 1000.0f;
-  cc_enter_threshold = set_current * (1.0f + CC_HYS_ENTER_PCT / 100.0f);
-  cc_exit_threshold = set_current * (1.0f - CC_HYS_EXIT_PCT / 100.0f);
-
-  if(Function_SET.OutPutState == CC_State)
+  // 仅在输出界面生效，避免设置界面下手动切换被自动逻辑抢回。
+  if((Function_SET.PowrputState == ON_State) &&
+     (Function_SET.SetMenuState == Menu_OUT_State))
   {
-    if(MyADC.Io <= cc_exit_threshold)
+    set_current = (float)Function_SET.Set_IOUT / 1000.0f;
+    cc_enter_threshold = set_current * (1.0f + CC_HYS_ENTER_PCT / 100.0f);
+    cc_exit_threshold = set_current * (1.0f - CC_HYS_EXIT_PCT / 100.0f);
+
+    if(Function_SET.OutPutState == CC_State)
     {
-      if(++cc_exit_cnt >= 3U)
+      if(MyADC.Io <= cc_exit_threshold)
       {
-        Function_SET.OutPutState = CV_State;
+        if(++cc_exit_cnt >= 3U)
+        {
+          Function_SET.OutPutState = CV_State;
+          FunctionSet_SyncSetVIWithMode();
+          cc_exit_cnt = 0U;
+        }
+      }
+      else
+      {
         cc_exit_cnt = 0U;
       }
+      cc_enter_cnt = 0U;
     }
     else
     {
+      if(MyADC.Io >= cc_enter_threshold)
+      {
+        if(++cc_enter_cnt >= 3U)
+        {
+          Function_SET.OutPutState = CC_State;
+          FunctionSet_SyncSetVIWithMode();
+          cc_enter_cnt = 0U;
+        }
+      }
+      else
+      {
+        cc_enter_cnt = 0U;
+      }
       cc_exit_cnt = 0U;
     }
-    cc_enter_cnt = 0U;
   }
   else
   {
-    if(MyADC.Io >= cc_enter_threshold)
-    {
-      if(++cc_enter_cnt >= 3U)
-      {
-        Function_SET.OutPutState = CC_State;
-        cc_enter_cnt = 0U;
-      }
-    }
-    else
-    {
-      cc_enter_cnt = 0U;
-    }
+    cc_enter_cnt = 0U;
     cc_exit_cnt = 0U;
   }
 

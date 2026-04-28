@@ -53,6 +53,18 @@ FunctionSet_Type  Function_SET =    //功能设置
 	Check_Protect                //保护检查
 };
 
+void FunctionSet_SyncSetVIWithMode(void)
+{
+	if(Function_SET.OutPutState == CV_State)
+	{
+		Function_SET.SetVIState = SET_V_State;
+	}
+	else
+	{
+		Function_SET.SetVIState = SET_I_State;
+	}
+}
+
 static void OUT_Switch_Adjust(void)  //输出开关调节
 { 
 	if(Function_SET.PowrputState==OFF_State)   //开机状态
@@ -80,6 +92,7 @@ static void SET_Switch_Adjust(void)  //输出/设置模式
 		if(Function_SET.SetMenuState==Menu_OUT_State)  //输出模式 
 		{
 			Function_SET.SetMenuState=Menu_SET_State;
+			FunctionSet_SyncSetVIWithMode();
 		}
 		else
 		{
@@ -118,6 +131,7 @@ static void DOWN_Switch_Adjust(void)  //下键开关调节
 		{
 			Function_SET.OutPutState = CV_State;
 		}
+		FunctionSet_SyncSetVIWithMode();
 	}
 }
 
@@ -141,19 +155,24 @@ static void OK_Switch_Adjust(void)	   //步进开关调节
 
 static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //编码器调节
 {
+	Direction_Change_t real_dir;
+
+	/* 旋转方向反转：保留中断上报定义，在数值调节层做统一翻转。 */
+	real_dir = (Direction_Change == Forward_State) ? Reverse_State : Forward_State;
+
 	if(Function_SET.SetMenuState==Menu_SET_State) 
 	{
 		if(Function_SET.SetVIState==SET_V_State)  //设置电压
 		{
-			if(Direction_Change==Reverse_State)  //逆时针转动 减(2026.4.15 RylanTu:why前面的判断逻辑要反着写?)
+			if(real_dir==Reverse_State)  //逆时针转动 减
 			{
 				//电压减
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-						if(Function_SET.Set_VOUT > SET_VOUT_MIN)
+						if(Function_SET.Set_VOUT>=100)
 					{
-						Function_SET.Set_VOUT-= 1;
+						Function_SET.Set_VOUT-= 100;
 					}
 					else
 					{
@@ -171,9 +190,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 					}
 					break; //   第二位 
 					case SET_State_Thirdly:
-						if(Function_SET.Set_VOUT>=100)
+						if(Function_SET.Set_VOUT > SET_VOUT_MIN)
 					{
-						Function_SET.Set_VOUT-= 100;
+						Function_SET.Set_VOUT-= 1;
 					}
 					else
 					{
@@ -188,9 +207,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-						if(Function_SET.Set_VOUT < SET_VOUT_MAX)
+						if(Function_SET.Set_VOUT <= (SET_VOUT_MAX - 100U))
 					{
-						Function_SET.Set_VOUT+= 1;
+						Function_SET.Set_VOUT+= 100;
 					}
 					else
 					{
@@ -208,9 +227,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 					}
 					break; //   第二位 
 					case SET_State_Thirdly:
-						if(Function_SET.Set_VOUT <= (SET_VOUT_MAX - 100U))
+						if(Function_SET.Set_VOUT < SET_VOUT_MAX)
 					{
-						Function_SET.Set_VOUT+= 100;
+						Function_SET.Set_VOUT+= 1;
 					}
 					else
 					{
@@ -225,15 +244,15 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 		}
 		else////设置电流
 		{
-			if(Direction_Change==Reverse_State)  //逆时针转动 减
+			if(real_dir==Reverse_State)  //逆时针转动 减
 			{
 				// 电流减
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_IOUT > SET_IOUT_MIN)
+					if(Function_SET.Set_IOUT>=100)
 					{
-						Function_SET.Set_IOUT-= 1;    //0.001A
+						Function_SET.Set_IOUT-= 100;    //0.100A
 					}
 					else
 					{
@@ -251,9 +270,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 					}
 					break;
 					case SET_State_Thirdly:
-					if(Function_SET.Set_IOUT>=100)
+					if(Function_SET.Set_IOUT > SET_IOUT_MIN)
 					{
-						Function_SET.Set_IOUT-= 100;    // 0.100A
+						Function_SET.Set_IOUT-= 1;    // 0.001A
 					}
 					else
 					{
@@ -269,9 +288,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 				switch(Function_SET.SetStepState)
 				{
 					case SET_State_First:
-					if(Function_SET.Set_IOUT < SET_IOUT_MAX)
+					if(Function_SET.Set_IOUT <= (SET_IOUT_MAX - 100U))
 					{
-						Function_SET.Set_IOUT+= 1;
+						Function_SET.Set_IOUT+= 100;
 					}
 					else
 					{
@@ -289,9 +308,9 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 					}
 					break;
 					case SET_State_Thirdly:
-					if(Function_SET.Set_IOUT <= (SET_IOUT_MAX - 100U))
+					if(Function_SET.Set_IOUT < SET_IOUT_MAX)
 					{
-						Function_SET.Set_IOUT+= 100;
+						Function_SET.Set_IOUT+= 1;
 					}
 					else
 					{
@@ -362,21 +381,60 @@ static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 
 static void Check_Protect(void)  //保护检查
 {
+	static uint8_t ov_cnt = 0U;
+	static uint8_t oc_cnt = 0U;
+	static uint8_t ot_cnt = 0U;
+	const uint8_t protect_confirm_cnt = 5U; // 10ms循环下约50ms确认，抑制瞬时毛刺误触发
+
 	//默认无保护
 	Function_SET.ProtectState = 0;
 
 	//过压保护
 	if(MyADC.Vo > PROTECT_VOLT)
 	{
-		Function_SET.ProtectState = 1;
+		if(ov_cnt < protect_confirm_cnt)
+		{
+			ov_cnt++;
+		}
+	}
+	else
+	{
+		ov_cnt = 0U;
 	}
 	//过流保护
-	else if(MyADC.Io > PROTECT_CURR)
+	if(MyADC.Io > PROTECT_CURR)
+	{
+		if(oc_cnt < protect_confirm_cnt)
+		{
+			oc_cnt++;
+		}
+	}
+	else
+	{
+		oc_cnt = 0U;
+	}
+	//过温保护
+	if(MyADC.Ni > PROTECT_TEMP)
+	{
+		if(ot_cnt < protect_confirm_cnt)
+		{
+			ot_cnt++;
+		}
+	}
+	else
+	{
+		ot_cnt = 0U;
+	}
+
+	if(ov_cnt >= protect_confirm_cnt)
+	{
+		Function_SET.ProtectState = 1;
+	}
+	else if(oc_cnt >= protect_confirm_cnt)
 	{
 		Function_SET.ProtectState = 2;
 	}
-	//过温保护
-	else if(MyADC.Ni > PROTECT_TEMP)
+	else if(ot_cnt >= protect_confirm_cnt)
 	{
 		Function_SET.ProtectState = 3;
 	}
@@ -387,7 +445,14 @@ static void Check_Protect(void)  //保护检查
 		{
 			PWMSET.PWM_Stop();
 			Function_SET.PowrputState = OFF_State;
-			printf("[PROTECT] state=%d\r\n", Function_SET.ProtectState);
+			printf("[PROTECT] state=%d Vo=%.3fV Io=%.3fA T=%.2fC\r\n",
+			       Function_SET.ProtectState,
+			       MyADC.Vo,
+			       MyADC.Io,
+			       MyADC.Ni);
+			ov_cnt = 0U;
+			oc_cnt = 0U;
+			ot_cnt = 0U;
 		}
 	}
 }

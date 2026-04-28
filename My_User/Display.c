@@ -4,6 +4,8 @@
 /* 显示报警阈值 */
 #define DISP_WARN_VOLT   12.0f   //输出过压报警阈值(V)
 #define DISP_WARN_CURR    1.0f   //输出过流报警阈值(A)
+#define ALARM_HOLD_CYCLES 25U   //告警消失后维持帧数（25×20ms≈500ms，防显示闪烁）
+#define DISP_WARN_TEMP_MID 45.0f  //温度橙色预警阈值(℃)
 #define DISP_WARN_TEMP   70.0f   //过温报警阈值(℃)
 
 /* UI坐标布局 */
@@ -49,6 +51,21 @@
 #define UI_VOUT_VAL_X2       156U
 #define UI_IOUT_VAL_X        114U
 #define UI_IOUT_VAL_X2       158U
+#define UI_VOUT_BOX_X1        (UI_X_SPLIT + 1U)
+#define UI_VOUT_BOX_Y1        (UI_Y_HEADER_END + 1U)
+#define UI_VOUT_BOX_X2        (LCD_W - 1U)
+#define UI_VOUT_BOX_Y2        (UI_Y_ROW1_END - 1U)
+#define UI_IOUT_BOX_X1        (UI_X_SPLIT + 1U)
+#define UI_IOUT_BOX_Y1        (UI_Y_ROW1_END + 1U)
+#define UI_IOUT_BOX_X2        (LCD_W - 1U)
+#define UI_IOUT_BOX_Y2        (UI_Y_ROW2_END - 1U)
+#define UI_TMP_BOX_X1         (UI_COL_RIGHT_X1 + 1U)
+#define UI_TMP_BOX_Y1         (UI_Y_ROW2_END + 1U)
+#define UI_TMP_BOX_X2         (LCD_W - 1U)
+#define UI_TMP_BOX_Y2         (UI_Y_INFO_END - 1U)
+#define UI_VOUT_LABEL_X       84U
+#define UI_IOUT_LABEL_X       84U
+#define UI_T_LABEL_X          (UI_COL_RIGHT_X1 + 2U)
 #define UI_VIN_VAL_X          26U
 #define UI_VIN_VAL_X2         44U
 #define UI_PWR_VAL_X          (UI_COL_MID_X1 + 14U)
@@ -138,6 +155,27 @@ static void DisplayShow_Once(void)
   LCD.ShowString((uint16_t)(UI_COL_RIGHT_X1 + 2U), UI_Y_INFO1_TEXT, "T:",
                  Color_BLACK, Color_WHITE, ASCII_font_12, font_overlay_OFF);
 
+  // 首帧静态界面完成后清空缓存，确保动态数值下一周期必定重绘。
+  ui_last_pwr_state = 0xFFU;
+  ui_last_mode_state = 0xFFU;
+  ui_last_percent = 0xFFU;
+  ui_last_setvi_state = 0xFFU;
+  ui_last_theme_mode_state = 0xFFU;
+  ui_last_bar_mode_state = 0xFFU;
+  ui_last_cursor_menu_state = 0xFFU;
+  ui_last_cursor_vi_state = 0xFFU;
+  ui_last_cursor_step_state = 0xFFU;
+  ui_last_alarm_ov = 0xFFU;
+  ui_last_alarm_oc = 0xFFU;
+  ui_last_alarm_ot = 0xFFU;
+  ui_last_vset[0] = '\0';
+  ui_last_iset[0] = '\0';
+  ui_last_vout[0] = '\0';
+  ui_last_iout[0] = '\0';
+  ui_last_vin[0] = '\0';
+  ui_last_pwr[0] = '\0';
+  ui_last_tmp[0] = '\0';
+
   Display.Show_Once_Flag = FALSE;
 }
 
@@ -193,10 +231,12 @@ static void DisplayShow_Cursor(void)
   uint16_t x_base;
   uint16_t y_base;
   uint16_t x_sel;
+  uint16_t char_span;
   uint16_t x_box1;
   uint16_t y_box1;
   uint16_t x_box2;
   uint16_t y_box2;
+  uint16_t i;
   uint8_t idx;
 
   if(Function_SET.SetMenuState != Menu_SET_State)
@@ -212,24 +252,22 @@ static void DisplayShow_Cursor(void)
              (unsigned long)(Function_SET.Set_VOUT % 100U));
     x_base = 4U + (5U * 6U); // "VSET:" 后
     y_base = UI_Y_ROW1_TEXT;
+    char_span = 1U;
     if(Function_SET.SetStepState == SET_State_First)
     {
-      idx = (uint8_t)(strlen(set_buf) - 1U);
+      idx = 0U;
+      if((Function_SET.Set_VOUT / 100U) >= 10U)
+      {
+        char_span = 2U;
+      }
     }
     else if(Function_SET.SetStepState == SET_State_Second)
     {
-      idx = (uint8_t)(strlen(set_buf) - 2U);
+      idx = ((Function_SET.Set_VOUT / 100U) >= 10U) ? 3U : 2U;
     }
     else
     {
-      if((Function_SET.Set_VOUT / 100U) >= 10U)
-      {
-        idx = 1U;
-      }
-      else
-      {
-        idx = 0U;
-      }
+      idx = ((Function_SET.Set_VOUT / 100U) >= 10U) ? 4U : 3U;
     }
   }
   else
@@ -240,9 +278,10 @@ static void DisplayShow_Cursor(void)
              (unsigned long)(Function_SET.Set_IOUT % 1000U));
     x_base = 4U + (5U * 6U); // "ISET:" 后
     y_base = UI_Y_ROW2_TEXT;
+    char_span = 1U;
     if(Function_SET.SetStepState == SET_State_First)
     {
-      idx = 4U;
+      idx = 2U;
     }
     else if(Function_SET.SetStepState == SET_State_Second)
     {
@@ -257,14 +296,17 @@ static void DisplayShow_Cursor(void)
   x_sel = (uint16_t)(x_base + idx * 6U);
   x_box1 = (x_sel > 0U) ? (uint16_t)(x_sel - 1U) : x_sel;
   y_box1 = (y_base > 0U) ? (uint16_t)(y_base - 1U) : y_base;
-  x_box2 = (uint16_t)(x_sel + 6U);
+  x_box2 = (uint16_t)(x_sel + 6U * char_span);
   y_box2 = (uint16_t)(y_base + 12U);
 
   // 按位反显：放大一圈黑底高亮，提升位选可读性。
   LCD.FillColor(x_box1, y_box1, x_box2, y_box2, Color_BLACK);
-  LCD.ShowChar(x_sel, y_base,
-               set_buf[idx], Color_WHITE, Color_BLACK,
-               ASCII_font_12, font_overlay_OFF);
+  for(i = 0U; i < char_span; i++)
+  {
+    LCD.ShowChar((uint16_t)(x_sel + i * 6U), y_base,
+                 set_buf[idx + i], Color_WHITE, Color_BLACK,
+                 ASCII_font_12, font_overlay_OFF);
+  }
   LCD.DrawRectangle(x_box1, y_box1, x_box2, y_box2, Color_WHITE);
 
 }
@@ -346,7 +388,7 @@ static void DisplayShow_Outval(void)
   uint16_t iout_bg;
   uint16_t temp_bg;
   uint8_t alarm_oc;
-  uint8_t alarm_ot;
+  uint8_t temp_alarm_level;
   uint8_t alarm_ov;
   int32_t vo_100;
   int32_t io_1000;
@@ -394,16 +436,36 @@ static void DisplayShow_Outval(void)
     ui_blink_phase ^= 1U;
   }
 
-  // 告警仍使用实时ADC值，保证保护响应速度
-  alarm_oc = (MyADC.Io > DISP_WARN_CURR) ? 1U : 0U;
-  alarm_ot = (MyADC.Ni > DISP_WARN_TEMP) ? 1U : 0U;
-  alarm_ov = (MyADC.Vo > DISP_WARN_VOLT) ? 1U : 0U;
+  // 告警仍使用实时ADC值，保证保护响应速度；加保持计数防止阈值附近反复闪烁
+  {
+    static uint8_t ov_hold = 0U;
+    static uint8_t oc_hold = 0U;
+    if(MyADC.Vo > DISP_WARN_VOLT) { alarm_ov = 1U; ov_hold = ALARM_HOLD_CYCLES; }
+    else if(ov_hold > 0U)         { alarm_ov = 1U; ov_hold--; }
+    else                          { alarm_ov = 0U; }
+    if(MyADC.Io > DISP_WARN_CURR) { alarm_oc = 1U; oc_hold = ALARM_HOLD_CYCLES; }
+    else if(oc_hold > 0U)         { alarm_oc = 1U; oc_hold--; }
+    else                          { alarm_oc = 0U; }
+  }
+  if(MyADC.Ni > DISP_WARN_TEMP)
+  {
+    temp_alarm_level = 2U; // 红色告警
+  }
+  else if(MyADC.Ni >= DISP_WARN_TEMP_MID)
+  {
+    temp_alarm_level = 1U; // 橙色预警
+  }
+  else
+  {
+    temp_alarm_level = 0U;
+  }
   vo_color = alarm_ov ? Color_WHITE : Color_BLACK;
   io_color = alarm_oc ? Color_WHITE : Color_BLACK;
-  temp_color = alarm_ot ? Color_WHITE : Color_BLACK;
+  temp_color = (temp_alarm_level == 0U) ? Color_BLACK : Color_WHITE;
   vout_bg = alarm_ov ? Color_RED : Color_WHITE;
   iout_bg = alarm_oc ? Color_RED : Color_WHITE;
-  temp_bg = alarm_ot ? Color_RED : Color_WHITE;
+  temp_bg = (temp_alarm_level == 2U) ? Color_RED :
+            ((temp_alarm_level == 1U) ? Color_BRRED : Color_WHITE);
 
   p_100 = Display_RoundToScale(p_out, 100);
   t_10  = Display_RoundToScale(temperature, 10);
@@ -422,28 +484,15 @@ static void DisplayShow_Outval(void)
     percent = 100U;
   }
 
-  // 右侧实测值与左侧设定值对齐显示。
-  // Bug1修复：各区域背景填充与自身告警解耦，避免 iout 区被 ov 触发的填充覆盖后未重绘
-  if(ui_last_alarm_ov != alarm_ov)
-  {
-    LCD.FillColor(UI_X_SPLIT + 1U, UI_Y_HEADER_END + 1U, LCD_W - 1U, UI_Y_ROW1_END, (LCD_Color_t)vout_bg);
-  }
-  if(ui_last_alarm_oc != alarm_oc)
-  {
-    LCD.FillColor(UI_X_SPLIT + 1U, UI_Y_ROW1_END + 1U, LCD_W - 1U, UI_Y_ROW2_END, (LCD_Color_t)iout_bg);
-  }
-  if(ui_last_alarm_ot != alarm_ot)
-  {
-    LCD.FillColor(UI_COL_RIGHT_X1, UI_Y_ROW2_END + 1U,
-                  LCD_W - 1U, UI_Y_INFO_END, (LCD_Color_t)temp_bg);
-  }
+  // 仅刷新数值窗口，避免覆盖静态标签（VOUT/IOUT/T）。
 
   snprintf(buf, sizeof(buf), "%ld.%02ldV",
            (long)(vo_100 / 100),
            (long)((vo_100 >= 0) ? (vo_100 % 100) : (-(vo_100 % 100))));
   if((strcmp(ui_last_vout, buf) != 0) || (ui_last_alarm_ov != alarm_ov))
   {
-    LCD.FillColor(UI_VOUT_VAL_X, UI_Y_HEADER_END + 1U, UI_VOUT_VAL_X2, UI_Y_ROW1_END, (LCD_Color_t)vout_bg);
+    LCD.FillColor(UI_VOUT_BOX_X1, UI_VOUT_BOX_Y1, UI_VOUT_BOX_X2, UI_VOUT_BOX_Y2, (LCD_Color_t)vout_bg);
+    LCD.ShowString(UI_VOUT_LABEL_X, UI_Y_ROW1_TEXT, "VOUT:", vo_color, vout_bg, ASCII_font_12, font_overlay_OFF);
     LCD.ShowString(UI_VOUT_VAL_X, UI_Y_ROW1_TEXT, buf, vo_color, vout_bg, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_vout, buf, sizeof(ui_last_vout) - 1U);
     ui_last_vout[sizeof(ui_last_vout) - 1U] = '\0';
@@ -454,7 +503,8 @@ static void DisplayShow_Outval(void)
            (long)((io_1000 >= 0) ? (io_1000 % 1000) : (-(io_1000 % 1000))));
   if((strcmp(ui_last_iout, buf) != 0) || (ui_last_alarm_oc != alarm_oc))
   {
-    LCD.FillColor(UI_IOUT_VAL_X, UI_Y_ROW1_END + 1U, UI_IOUT_VAL_X2, UI_Y_ROW2_END, (LCD_Color_t)iout_bg);
+    LCD.FillColor(UI_IOUT_BOX_X1, UI_IOUT_BOX_Y1, UI_IOUT_BOX_X2, UI_IOUT_BOX_Y2, (LCD_Color_t)iout_bg);
+    LCD.ShowString(UI_IOUT_LABEL_X, UI_Y_ROW2_TEXT, "IOUT:", io_color, iout_bg, ASCII_font_12, font_overlay_OFF);
     LCD.ShowString(UI_IOUT_VAL_X, UI_Y_ROW2_TEXT, buf, io_color, iout_bg, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_iout, buf, sizeof(ui_last_iout) - 1U);
     ui_last_iout[sizeof(ui_last_iout) - 1U] = '\0';
@@ -493,9 +543,10 @@ static void DisplayShow_Outval(void)
   }
 
   snprintf(buf, sizeof(buf), "%s%ld.%01ldC", t_sign, (long)t_int, (long)t_dec);
-  if((strcmp(ui_last_tmp, buf) != 0) || (ui_last_alarm_ot != alarm_ot))
+  if((strcmp(ui_last_tmp, buf) != 0) || (ui_last_alarm_ot != temp_alarm_level))
   {
-    LCD.FillColor(UI_TMP_VAL_X, UI_Y_ROW2_END + 1U, UI_TMP_VAL_X2, UI_Y_INFO_END, (LCD_Color_t)temp_bg);
+    LCD.FillColor(UI_TMP_BOX_X1, UI_TMP_BOX_Y1, UI_TMP_BOX_X2, UI_TMP_BOX_Y2, (LCD_Color_t)temp_bg);
+    LCD.ShowString(UI_T_LABEL_X, UI_Y_INFO1_TEXT, "T:", temp_color, temp_bg, ASCII_font_12, font_overlay_OFF);
     LCD.ShowString(UI_TMP_VAL_X, UI_Y_INFO1_TEXT, buf,
                    temp_color, temp_bg, ASCII_font_12, font_overlay_OFF);
     strncpy(ui_last_tmp, buf, sizeof(ui_last_tmp) - 1U);
@@ -524,7 +575,7 @@ static void DisplayShow_Outval(void)
 
   ui_last_alarm_ov = alarm_ov;
   ui_last_alarm_oc = alarm_oc;
-  ui_last_alarm_ot = alarm_ot;
+  ui_last_alarm_ot = temp_alarm_level;
 }
 
 void My_DisplayTask(void)

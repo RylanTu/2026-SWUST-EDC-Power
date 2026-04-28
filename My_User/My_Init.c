@@ -15,6 +15,7 @@ MyInit_t MyInit =
 static void Peripheral_Set()
 {   
     //OLED_Init();  // 已切换至TFT，不再使用OLED
+    HAL_Delay(120);
     LCD.Init();
     LED.RUN_LED_ON();
     FAN.FAN_ON();

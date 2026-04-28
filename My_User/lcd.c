@@ -27,6 +27,8 @@ static void LCD_WR_DATA8(uint8_t dat);
 static void LCD_WR_DATA16(uint16_t dat);
 static void LCD_WR_REG(uint8_t dat);
 static void LCD_Address_Set(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
+static void LCD_HardReset(void);
+static void LCD_ApplyInitSequence(void);
 
 static void LCD_Init(void);
 static void LCD_FillColor(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, LCD_Color_t color);
@@ -188,19 +190,46 @@ static void LCD_Address_Set(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
  */
 static void LCD_Init(void)
 {
+    uint8_t attempt;
+
     LCD_BLK_OFF;        /* 初始化期间关闭背光，避免花屏 */
 
     /* 与原标准库一致：先拉到空闲态，避免上电后误命令 */
     LCD_CS_Set;
     LCD_DC_Set;
     LCD_RES_Set;
-    HAL_Delay(10);
+    HAL_Delay(20);
 
-    /* --- 硬件复位 --- */
+    /* 冷启动时屏电源/内部时钟稳定较慢，先留更宽裕的上电等待窗口 */
+    HAL_Delay(180);
+
+    /* 连续两次完整初始化，等效于“上电后自动再按一次复位” */
+    for(attempt = 0U; attempt < 2U; attempt++)
+    {
+        LCD_HardReset();
+        LCD_ApplyInitSequence();
+        HAL_Delay(20);
+    }
+
+    /* --- 清屏为白色，开启背光 --- */
+    LCD_FillColor(0, 0, LCD_W, LCD_H, Color_WHITE);
+    printf("ST7735S LCD Init OK!\r\n");
+    LCD_BLK_ON;
+}
+
+static void LCD_HardReset(void)
+{
     LCD_RES_Clr;
-    HAL_Delay(100);
+    HAL_Delay(30);
     LCD_RES_Set;
-    HAL_Delay(100);
+    HAL_Delay(150);
+}
+
+static void LCD_ApplyInitSequence(void)
+{
+    /* 软件复位，确保命令解释器状态一致 */
+    LCD_WR_REG(0x01);
+    HAL_Delay(10);
 
     /* --- 退出睡眠模式 --- */
     LCD_WR_REG(0x11);   /* Sleep Out */
@@ -264,13 +293,12 @@ static void LCD_Init(void)
     LCD_WR_REG(0x3A);
     LCD_WR_DATA8(0x05);
 
+    /* --- 正常显示模式 --- */
+    LCD_WR_REG(0x13);
+
     /* --- 打开显示 --- */
     LCD_WR_REG(0x29);
-
-    /* --- 清屏为白色，开启背光 --- */
-    LCD_FillColor(0, 0, LCD_W, LCD_H, Color_WHITE);
-    printf("ST7735S LCD Init OK!\r\n");
-    LCD_BLK_ON;
+    HAL_Delay(20);
 }
 
 
