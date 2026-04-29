@@ -152,13 +152,27 @@ static void OK_Switch_Adjust(void)	   //步进开关调节
 {
 	if(Function_SET.SetMenuState!=Menu_OUT_State) //设置模式
 	{
-		switch(Function_SET.SetStepState)   // 步进位
-     	{
-      		case SET_State_First:Function_SET.SetStepState=SET_State_Second; break; //   第一位 
-			case SET_State_Second:Function_SET.SetStepState=SET_State_Thirdly; break; //   第二位 
-			case SET_State_Thirdly:Function_SET.SetStepState=SET_State_First; break; //   第三位 
-      		default:Function_SET.SetStepState=SET_State_First;
-     	}
+		if(Function_SET.SetVIState == SET_I_State)
+		{
+			switch(Function_SET.SetStepState)   // ISET: 四档(含整数位)
+	     	{
+	      		case SET_State_First:Function_SET.SetStepState=SET_State_Second; break;
+				case SET_State_Second:Function_SET.SetStepState=SET_State_Thirdly; break;
+				case SET_State_Thirdly:Function_SET.SetStepState=SET_State_Fourth; break;
+				case SET_State_Fourth:Function_SET.SetStepState=SET_State_First; break;
+	      		default:Function_SET.SetStepState=SET_State_First;
+	     	}
+		}
+		else
+		{
+			switch(Function_SET.SetStepState)   // VSET: 三档
+	     	{
+	      		case SET_State_First:Function_SET.SetStepState=SET_State_Second; break;
+				case SET_State_Second:Function_SET.SetStepState=SET_State_Thirdly; break;
+				case SET_State_Thirdly:Function_SET.SetStepState=SET_State_First; break;
+				default:Function_SET.SetStepState=SET_State_First;
+	     	}
+		}
 	}
 }
 
@@ -212,6 +226,16 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 							Function_SET.Set_VOUT= SET_VOUT_MIN;
 					}
 					break; //   第三位 
+					default:
+						if(Function_SET.Set_VOUT>=100)
+						{
+							Function_SET.Set_VOUT-= 100;
+						}
+						else
+						{
+							Function_SET.Set_VOUT= SET_VOUT_MIN;
+						}
+						break;
 				}		
 			}
 			else  //顺时针转动 加
@@ -249,6 +273,16 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 							Function_SET.Set_VOUT= SET_VOUT_MAX;
 					}
 					break; //   第三位 
+					default:
+						if(Function_SET.Set_VOUT <= (SET_VOUT_MAX - 100U))
+						{
+							Function_SET.Set_VOUT+= 100;
+						}
+						else
+						{
+							Function_SET.Set_VOUT= SET_VOUT_MAX;
+						}
+						break;
 				}
 			}
 			printf(" Function_SET.Set_VOUT: %d\r\n\r\n",Function_SET.Set_VOUT);
@@ -262,6 +296,16 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 				// 电流减
 				switch(Function_SET.SetStepState)
 				{
+					case SET_State_Fourth:
+					if(Function_SET.Set_IOUT>=1000)
+					{
+						Function_SET.Set_IOUT-= 1000;   //1.000A
+					}
+					else
+					{
+						Function_SET.Set_IOUT= SET_IOUT_MIN;
+					}
+					break;
 					case SET_State_First:
 					if(Function_SET.Set_IOUT>=100)
 					{
@@ -300,6 +344,16 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 				//电流加
 				switch(Function_SET.SetStepState)
 				{
+					case SET_State_Fourth:
+					if(Function_SET.Set_IOUT <= (SET_IOUT_MAX - 1000U))
+					{
+						Function_SET.Set_IOUT+= 1000;
+					}
+					else
+					{
+						Function_SET.Set_IOUT= SET_IOUT_MAX;
+					}
+					break;
 					case SET_State_First:
 					if(Function_SET.Set_IOUT <= (SET_IOUT_MAX - 100U))
 					{

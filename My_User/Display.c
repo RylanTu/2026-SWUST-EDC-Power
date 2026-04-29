@@ -285,6 +285,8 @@ static void DisplayShow_Device(void)
 static void DisplayShow_Cursor(void)
 {
   char set_buf[16];
+  uint16_t int_part;
+  uint8_t int_digits;
   uint16_t x_base;
   uint16_t y_base;
   uint16_t x_sel;
@@ -329,24 +331,37 @@ static void DisplayShow_Cursor(void)
   }
   else
   {
-    // 固定宽度："0.500"
-    snprintf(set_buf, sizeof(set_buf), "%1lu.%03lu",
+    // ISET格式: "0.500"/"10.500"，整数位可变，光标按位映射。
+    snprintf(set_buf, sizeof(set_buf), "%lu.%03lu",
              (unsigned long)(Function_SET.Set_IOUT / 1000U),
              (unsigned long)(Function_SET.Set_IOUT % 1000U));
     x_base = 4U + (5U * 6U); // "ISET:" 后
     y_base = UI_Y_ROW2_TEXT;
     char_span = 1U;
-    if(Function_SET.SetStepState == SET_State_First)
+    int_part = (uint16_t)(Function_SET.Set_IOUT / 1000U);
+    int_digits = 1U;
+    while(int_part >= 10U)
     {
-      idx = 2U;
+      int_part = (uint16_t)(int_part / 10U);
+      int_digits++;
+    }
+
+    if(Function_SET.SetStepState == SET_State_Fourth)
+    {
+      idx = 0U;
+      char_span = int_digits;
+    }
+    else if(Function_SET.SetStepState == SET_State_First)
+    {
+      idx = (uint8_t)(int_digits + 1U);
     }
     else if(Function_SET.SetStepState == SET_State_Second)
     {
-      idx = 3U;
+      idx = (uint8_t)(int_digits + 2U);
     }
     else
     {
-      idx = 2U;
+      idx = (uint8_t)(int_digits + 3U);
     }
   }
 

@@ -28,7 +28,7 @@ typedef struct
 	uint8_t SelectOutPutState;			//用户选择模式  有恒压模式 恒流模式
 	uint8_t SetMenuState;               //菜单模式状态 输出 设置
 	uint8_t SetVIState;               //设置电压步进模式  有 退出 第一位 第二位 
-	uint8_t SetStepState;               //设置电流步进模式 有 退出 第一位 第二位 第三位
+	uint8_t SetStepState;               //设置步进模式: VSET三档/ISET四档(含整数位)
 	uint8_t Encoder_State;                 //编码器状态  闲置 正转 反转
 	uint8_t ProtectState;                  //保护状态 0正常 1过压 2过流 3过温
 	uint16_t Set_VOUT  ;                  //设置电压值(单位:10mV)
@@ -57,9 +57,10 @@ typedef enum
 //状态
 typedef enum
 {
- SET_State_First  	= 	(uint8_t)0,   //电流设置1位模式
- SET_State_Second	=	(uint8_t)1,   //电流设置2位模式
- SET_State_Thirdly	=	(uint8_t)2,   //电流设置3位模式
+	SET_State_First  	= 	(uint8_t)0,   //第一位(0.1步进)
+	SET_State_Second	=	(uint8_t)1,   //第二位(0.01步进)
+	SET_State_Thirdly	=	(uint8_t)2,   //第三位(0.001步进)
+	SET_State_Fourth	=	(uint8_t)3,   //整数位(1.000步进, ISET专用)
 }SET_Step_Status_t;         //设置开关状态
 
 //状态

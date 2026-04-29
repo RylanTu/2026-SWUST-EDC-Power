@@ -10,12 +10,38 @@ static void PWM_Init(void);
 static void PWM_Stop(void);
 static void PWM_Start(void);
 static void PWM_Updata(uint16_t Duty_CV,uint16_t Duty_CC);
+static void PWM_SetPinsToAfPp(void);
+static void PWM_SetPinsToGpioLow(void);
 
 #define PWM_SLEW_STEP_UP    12U
 #define PWM_SLEW_STEP_DOWN  20U
 
 static uint16_t pwm_cv_shadow = 0U;
 static uint16_t pwm_cc_shadow = 0U;
+
+static void PWM_SetPinsToAfPp(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_11;
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+}
+
+static void PWM_SetPinsToGpioLow(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8 | GPIO_PIN_11, GPIO_PIN_RESET);
+	GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_11;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8 | GPIO_PIN_11, GPIO_PIN_RESET);
+}
 
 //初始为0
 PWMSet_Type  PWMSET =
@@ -51,6 +77,8 @@ static void PWM_Init(void)
 }
 static void PWM_Start(void)
 {
+	PWM_SetPinsToAfPp();
+
 	/* 先将比较值拉到0，再启动输出，避免启动瞬间沿用历史占空导致尖峰。 */
 	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,0U);
 	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_4,0U);
@@ -73,6 +101,7 @@ static void PWM_Stop(void)
 	HAL_TIM_PWM_Stop(&htim1,TIM_CHANNEL_4);
 	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_1,0);
 	__HAL_TIM_SET_COMPARE(&htim1,TIM_CHANNEL_4,0);
+	PWM_SetPinsToGpioLow();
 	pwm_cv_shadow = 0U;
 	pwm_cc_shadow = 0U;
 }
