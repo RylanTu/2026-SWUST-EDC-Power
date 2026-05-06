@@ -6,7 +6,7 @@
 #define SET_VOUT_MIN 0U       // 0.00V (unit: 10mV)
 #define SET_VOUT_MAX 1200U    // 12.00V (unit: 10mV)
 #define SET_IOUT_MIN 0U       // 0.000A (unit: 1mA)
-#define SET_IOUT_MAX 1000U    // 1.000A (unit: 1mA)
+#define SET_IOUT_MAX 1300U    // 1.300A (unit: 1mA)
 
 #define SET_VOUT_DEFAULT 600U // 6.00V (unit: 10mV)
 #define SET_IOUT_DEFAULT 500U // 0.500A (unit: 1mA)
@@ -15,8 +15,8 @@
 typedef enum
 {
 	Idle_State = 	(uint8_t)0,     //闲置状态
-	Forward_State = (uint8_t)1,  //顺时方向
-	Reverse_State = (uint8_t)2,  //逆时方向
+	Forward_State = (uint8_t)2,  //顺时方向
+	Reverse_State = (uint8_t)1,  //逆时方向
 
 }Direction_Change_t;
 
@@ -60,7 +60,7 @@ typedef enum
 	SET_State_First  	= 	(uint8_t)0,   //第一位(0.1步进)
 	SET_State_Second	=	(uint8_t)1,   //第二位(0.01步进)
 	SET_State_Thirdly	=	(uint8_t)2,   //第三位(0.001步进)
-	SET_State_Fourth	=	(uint8_t)3,   //整数位(1.000步进, ISET专用)
+	SET_State_Fourth	=	(uint8_t)3,   //整数位(1.000步进,VSET专用)
 }SET_Step_Status_t;         //设置开关状态
 
 //状态

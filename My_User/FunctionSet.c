@@ -1,17 +1,41 @@
 /* Includes ------------------------------------------------------------------*/
 #include "FunctionSet.h"
-
+#include "Display.h"
+#include <string.h>
 /* Private define-------------------------------------------------------------*/
-#define PROTECT_VOLT   20.0f   //过压保护阈值(V)
-#define PROTECT_CURR    1.8f   //过流保护阈值(A)
+#define PROTECT_VOLT   15.0f   //过压保护阈值(V)
+#define PROTECT_CURR    3.0f   //过流保护阈值(A)
 #define PROTECT_TEMP   60.0f   //过温保护阈值(℃)
 #define MIN_SHUTDOWN_TIME_MS  300U  //最小关机时间(ms) 防止快速开关导致保护反复触发
 
+// #define CC_RSENSE        0.02468189f    // 采样电阻 25mΩ
+// #define CC_AMP_GAIN      11.40f     // 电流环放大倍数
+// #define CC_VREF          3.29f
+
+#define CC_RSENSE        0.02468189f    // 采样电阻 25mΩ
+#define CC_AMP_GAIN      11.40f     // 电流环放大倍数
+#define CC_VREF          3.29f
+
+// /* 电压校准模型（最小二乘拟合）: V_meas = k * V_set + b
+//  * 反向补偿: V_set_comp = (V_target - b) / k
+//  */
+// #define VOUT_FIT_K      0.993364f
+// #define VOUT_FIT_B      0.081634f
+
+// /* 电压校准模型（最小二乘拟合）: V_meas = k * V_set + b
+//  * 反向补偿: V_set_comp = (V_target - b) / k
+//  * 精度：绝对误差 ≤ 0.0008V，相对误差 ＜ 0.01%
+//  */
+// #define VOUT_FIT_K      0.99725758f//成功
+// #define VOUT_FIT_B      0.11257576f
+
+
 /* 电压校准模型（最小二乘拟合）: V_meas = k * V_set + b
  * 反向补偿: V_set_comp = (V_target - b) / k
+ * 精度：绝对误差 ≤ 0.0008V，相对误差 ＜ 0.01%
  */
-#define VOUT_FIT_K      0.993364f
-#define VOUT_FIT_B      0.081634f
+#define VOUT_FIT_K      0.99725758f
+#define VOUT_FIT_B      0.11257576f
 
 /* Private variables----------------------------------------------------------*/
 static uint16_t shutdown_timer_ms = 0U;  //关机计时器(ms) 用于实现最小关机时间防护
@@ -49,7 +73,7 @@ FunctionSet_Type  Function_SET =    //功能设置
 	OUT_Switch_Adjust,       	//电源开/关机
 	SET_Switch_Adjust,			//输出/设置模式
 	UP_Switch_Adjust,  			//上键开关调节
-	DOWN_Switch_Adjust, 		//下键开关调节
+	DOWN_Switch_Adjust, 		//下键开关调节K3
 	OK_Switch_Adjust,	   		//步进开关调节
 	Encoder_Direction_Adjust,
 	OUT_VAL_Ctrl,      			 //输出电压 电流控制
@@ -58,7 +82,7 @@ FunctionSet_Type  Function_SET =    //功能设置
 
 void FunctionSet_SyncSetVIWithMode(void)
 {
-	if(Function_SET.SelectOutPutState == CV_State)
+	if(Function_SET.OutPutState == CV_State)
 	{
 		Function_SET.SetVIState = SET_V_State;
 	}
@@ -114,7 +138,7 @@ static void SET_Switch_Adjust(void)  //输出/设置模式
 	} 	
 }
 
-static void UP_Switch_Adjust(void)  //上键开关调节
+static void UP_Switch_Adjust(void)  
 {
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
@@ -131,20 +155,20 @@ static void UP_Switch_Adjust(void)  //上键开关调节
 	
 }    	
 
-static void DOWN_Switch_Adjust(void)  //下键开关调节
+static void DOWN_Switch_Adjust(void)  
 {
 	// K3: 仅在设置菜单下允许切换恒压/恒流模式
 	if(Function_SET.SetMenuState==Menu_SET_State)
 	{
-		if(Function_SET.SelectOutPutState == CV_State)
+		if(Function_SET.OutPutState == CV_State)
 		{
-			Function_SET.SelectOutPutState = CC_State;
+			Function_SET.OutPutState = CC_State;			
 		}
 		else
 		{
-			Function_SET.SelectOutPutState = CV_State;
+			Function_SET.OutPutState = CV_State;			
 		}
-		FunctionSet_SyncSetVIWithMode();
+		 FunctionSet_SyncSetVIWithMode();		
 	}
 }
 
@@ -393,10 +417,11 @@ static void  Encoder_Direction_Adjust(Direction_Change_t Direction_Change)  //�
 }
 
 
+      
 static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 {
-	uint16_t CV_Duty;         //
-	uint16_t CC_Duty;         //
+	uint16_t CV_Duty;         
+	uint16_t CC_Duty;
 	uint16_t Vout_val;	
 	uint16_t Iout_val;
 	float target_v;
@@ -428,13 +453,14 @@ static void  OUT_VAL_Ctrl(void)  //输出电压 电流控制
 		//CC_Duty=(float)(((Iout_val/100*0.025)/0.75+((Iout_val/100*0.025)/0.75/4*30))/3.3*1440); //采样电阻0.025R
 		//CC_Duty=(uint16_t)((Iout_val/100*0.025)/3*34)/3.3*1440;
 
-		// Set_IOUT单位1mA: /1000转换为A；采样电阻0.025R，电流环放大约15倍
-		SET_Iout_val=(float)Iout_val/1000*0.025*15/3.3*1440;
+		// Set_IOUT单位1mA: /1000转换为A；采样电阻25毫欧，电流环放大约16倍
+		// SET_Iout_val=(float)Iout_val/1000*0.025*16.0f/3.3*1440;
+		SET_Iout_val = (float)Iout_val*0.001f * CC_RSENSE * CC_AMP_GAIN / CC_VREF * 1440.0f;
 		//printf("SET_Iout_val:%f\r\n\r\n",SET_Iout_val); 
 		CC_Duty=(uint16_t)SET_Iout_val;
 
 		PWMSET.PWM_Updata(CV_Duty,CC_Duty);  //更新输出电流 电压
-	
+		
 		//printf("CV_Duty:%d\r\n\r\n",CV_Duty); 
 		//printf("CC_Duty:%d\r\n\r\n",CC_Duty); 
 	}

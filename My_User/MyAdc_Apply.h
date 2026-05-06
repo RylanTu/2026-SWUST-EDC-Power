@@ -6,6 +6,7 @@
 # define  PW_ADC_SAMPLE_LEN 8   //ADC样本空间长度（8×5ms=40ms滑动均值窗口）
 # define  CC_HYS_ENTER_PCT 1.0f //进入CC阈值百分比
 # define  CC_HYS_EXIT_PCT  1.0f //退出CC阈值百分比
+ 
 //定义枚举类型
  
 //定义结构体类型

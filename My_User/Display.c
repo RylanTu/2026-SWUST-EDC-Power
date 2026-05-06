@@ -218,7 +218,8 @@ static uint16_t Display_TextColorForBg(uint16_t bg_color)
 
 static uint8_t Display_ModeTextState(void)
 {
-  return Function_SET.SelectOutPutState;
+  // return Function_SET.SelectOutPutState;
+  return Function_SET.OutPutState;  // 显示实际工作模式
 }
 
 static uint8_t Display_ModeMismatch(void)

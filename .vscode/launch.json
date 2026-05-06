@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "stlinkgdbtarget",
+            "request": "launch",
+            "name": "STM32F103C8T6 Debug",
+            "cwd": "${workspaceFolder}",
+            "servertype": "stlink",
+            "device": "STM32F103C8",
+            "interface": "swd",
+            "speed": "4000",
+            "runEntry": "main",
+            "preBuild": "${command:st-stm32-ide-debug-launch.build}",
+            "imagesAndSymbols": [
+                {
+                    "imageFileName": "${command:st-stm32-ide-debug-launch.get-projects-binary-from-context1}"
+                }
+            ],
+            "reset": "pre_run",
+            "gdbpath": "arm-none-eabi-gdb"
+        }
+    ]
+}

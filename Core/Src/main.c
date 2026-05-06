@@ -71,6 +71,7 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
   //uint8_t Key_num;
+  Function_SET.OutPutState = CV_State;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

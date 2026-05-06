@@ -69,8 +69,8 @@ static void PWM_Init(void)
 	PWMSET.period = PWM_PERIOD_VAL;       //周期 1439
 	PWMSET.halfPeriod = PWMSET.period >> 1;   //半周期 719
     
-    //设置最大限制值(周期的95%)和最小限制值(周期的1%)
-	PWMSET.limitMax = 0.95f * PWMSET.period;  //1367
+    //设置最大限制值(周期的98%)和最小限制值(周期的98%)和最小限制值(周期的1%)
+	PWMSET.limitMax = 0.98f * PWMSET.period;  //1438
 	PWMSET.limitMin = 0;                      //允许占空比降到0//2026.4.16 RylanTu:不确定改到0会不会炸
     
  	PWMSET.Status = Stop_State;   //将初始状态设置为停止状态

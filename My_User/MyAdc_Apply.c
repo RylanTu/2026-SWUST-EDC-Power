@@ -5,13 +5,20 @@
 
 
 /* Private define-------------------------------------------------------------*/
+// /* 输出电压ADC采样校准模型（最小二乘拟合，12组实测数据）:
+//  * V_adc_raw = ADC_VO_FIT_K * V_real + ADC_VO_FIT_B
+//  * 反向补偿: V_real = (V_adc_raw - ADC_VO_FIT_B) / ADC_VO_FIT_K
+//  */
+// #define ADC_VO_FIT_K    1.09930f   /* ADC采样增益误差（实测斜率） */
+// #define ADC_VO_FIT_B    0.02788f   /* ADC采样偏置误差（实测截距，V） */
 
 /* 输出电压ADC采样校准模型（最小二乘拟合，12组实测数据）:
  * V_adc_raw = ADC_VO_FIT_K * V_real + ADC_VO_FIT_B
  * 反向补偿: V_real = (V_adc_raw - ADC_VO_FIT_B) / ADC_VO_FIT_K
  */
-#define ADC_VO_FIT_K    1.09930f   /* ADC采样增益误差（实测斜率） */
-#define ADC_VO_FIT_B    0.02788f   /* ADC采样偏置误差（实测截距，V） */
+#define ADC_VO_FIT_K    1.09530f   /* ADC采样增益误差（实测斜率） */
+#define ADC_VO_FIT_B    0.0f   /* ADC采样偏置误差（实测截距，V） */
+
 
 /* Private variables----------------------------------------------------------*/
 
@@ -98,11 +105,14 @@ static void ADC_GetNewSample (void) //获取ADC采样值
   //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /34/0.025 ;//理论34
   //MyADC.Io = 2 * (3.3/4095) /34/0.025 ;//理论34
   //printf("S V:%d\r\n\r\n",SUM[1]);
-  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025;//运放增益约15，采样电阻0.025R
-  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 1.0f;   //输出电流
-  MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;  //输入电压
+  //MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.3/4095) /15/0.025;//运放增益，采样电阻0.025R
+  MyADC.Io = (SUM[1] / PW_ADC_SAMPLE_LEN) * (3.313f / 4095.0f) * 2.468189f;   //输出电流
+  MyADC.Vi = (SUM[2] / PW_ADC_SAMPLE_LEN) * (3.29f / 4095.0f) * 11.0f;  //输入电压
+  
+
+
   {
-    float vo_raw = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.3f / 4095.0f) * 11.0f;
+    float vo_raw = (SUM[3] / PW_ADC_SAMPLE_LEN) * (3.29f / 4095.0f) * 11.0f;
     MyADC.Vo = (vo_raw - ADC_VO_FIT_B) / ADC_VO_FIT_K;  //输出电压（ADC校准补偿后）
   }
 
